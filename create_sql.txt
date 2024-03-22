@@ -1,0 +1,115 @@
+CREATE TABLE tbl_movie(
+	Movie_ID int PRIMARY KEY,
+	Title nvarchar(100) NOT NULL,
+	Descriptions nvarchar(MAX),
+	URLS Text,
+	Poster Text,
+	Original_language varchar(20),
+	Status varchar(10),
+	Vote_average Float,
+	Vote_count int
+);
+
+---------------------------------------------------------------------
+CREATE TABLE tbl_user(
+	User_ID int PRIMARY KEY,
+	User_name nvarchar(100) NOT NULL,
+	Email nvarchar(100),
+	Password nvarchar(100),
+	User_age int,
+	Role int,
+	Upgrade_status int,
+	Phone nvarchar(10),
+	Avatar Float,
+	Gender int
+);
+
+---------------------------------------------------------------------
+CREATE TABLE tbl_rating(
+	User_ID int,
+	Movie_ID int,
+	Rating int,
+	CONSTRAINT FK_UserId_Rating FOREIGN KEY (User_ID)
+        REFERENCES tbl_user (User_ID),
+	CONSTRAINT FK_MovieId_Rating FOREIGN KEY (Movie_ID)
+        REFERENCES tbl_movie (Movie_ID)
+);
+
+----------------------------------------------------------------------
+CREATE TABLE tbl_user_subs(
+	User_ID int,
+	Start_Day DateTime,
+	End_Day DateTime,
+	Status int,
+	CONSTRAINT FK_UserId_Subs FOREIGN KEY (User_ID)
+        REFERENCES tbl_user (User_ID)
+);
+
+----------------------------------------------------------------------
+
+CREATE TABLE tbl_user_movieAccess(
+	User_ID int,
+	Movie_ID int,
+	CONSTRAINT FK_UserId_movieAccess FOREIGN KEY (User_ID)
+        REFERENCES tbl_user (User_ID),
+	CONSTRAINT FK_MovieId_movieAccess FOREIGN KEY (Movie_ID)
+        REFERENCES tbl_movie (Movie_ID)
+);
+
+----------------------------------------------------------------------
+CREATE TABLE tbl_actor(
+	Actor_ID int PRIMARY KEY,
+	Name_Actor NVARCHAR(100),
+	Age_Actor int,
+	Gender int
+);
+
+----------------------------------------------------------------------
+CREATE TABLE tbl_actor_movie(
+	Movie_ID int,
+	Actor_ID int,
+	role NVARCHAR(100),
+	CONSTRAINT FK_actor_movie FOREIGN KEY (Movie_ID)
+        REFERENCES tbl_movie (Movie_ID),
+	CONSTRAINT FK_actor_actor FOREIGN KEY (Actor_ID)
+        REFERENCES tbl_actor (Actor_ID)
+);
+
+----------------------------------------------------------------------
+CREATE TABLE tbl_genre(
+	Genre_ID int PRIMARY KEY,
+	Name_Genre NVARCHAR(100)
+
+);
+
+----------------------------------------------------------------------
+CREATE TABLE tbl_genre_movie(
+	Movie_ID int,
+	Genre_ID int,
+	CONSTRAINT FK_movie_genre FOREIGN KEY (Movie_ID)
+        REFERENCES tbl_movie (Movie_ID),
+	CONSTRAINT FK_genre_movie FOREIGN KEY (Genre_ID)
+        REFERENCES tbl_genre (Genre_ID)
+);
+
+----------------------------------------------------------------------
+CREATE TABLE tbl_country(
+	Country_ID INT PRIMARY KEY,
+	Name_Contry NVARCHAR(50)
+);
+
+----------------------------------------------------------------------
+CREATE TABLE tbl_country_movie(
+	Movie_ID INT,
+	Country_ID INT,
+	CONSTRAINT FK_Movie_Country FOREIGN KEY (Movie_ID)
+	REFERENCES tbl_movie(Movie_ID),
+	CONSTRAINT FK_Country_Movie FOREIGN KEY (Country_ID)
+	REFERENCES tbl_country(Country_ID)
+);
+
+----------------------------------------------------------------------
+
+Scaffold-DbContext "Server=LAPTOP-48QSU778\SQLEXPRESS;Database=Movie_DB;Trusted_Connection=True;TrustServerCertificate=True;"Microsoft.EntityFrameworkcore.SqlServer -OutputDir Repos/Models -context MovieDataContext -f -contextDir Repos -DataAnnotations
+LAPTOP-48QSU778\SQLEXPRESS
+LAPTOP-48QSU778\\SQLEXPRESS

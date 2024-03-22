@@ -1,0 +1,111 @@
+.header{
+    position:sticky;
+    top: 0; 
+    z-index: 100; 
+    font-family: "SF Pro, Roboto, Noto Sans, sans-serif";
+    padding: 10px 64px;
+    background-color: rgb(17, 19, 25);
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    .header-left{
+        display: flex;
+        align-items: center;
+        div{
+            margin: 0 10px;
+            position: relative;
+            button{
+                background: transparent;
+                border: none;
+                outline: none;
+                color: white;
+                font-size: 18px;
+                font-weight: 600;
+            }
+            ul{
+                position: absolute;
+                bottom: -10;
+                left: -5;
+                padding: 10px;
+                background-color: rgb(5, 5, 5);
+                width: 450px;
+                display: flex;
+                justify-content: space-evenly;
+                flex-wrap: wrap;
+                border-radius: 5px;
+                li{
+                    width: 23%;
+                    display: flex;
+                    align-items: center;
+                    svg{
+                        width: 15px;
+                        height: 15px;
+                    }
+                    span{
+                        flex:1;
+                        margin: 5px;
+                        color: rgb(113, 110, 110);
+                        font-weight: 600;
+                        &:hover{
+                            color: rgb(32, 83, 237);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .header-right{
+        display: flex;
+        align-items: center;
+        div:first-child{
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 7px;
+            input{
+                color: white;
+                background: transparent;
+                border: none;
+                outline: none;
+            }
+        }
+        ul{
+            padding: 0;
+            display: flex;
+            margin: 0 10px;
+
+            li{
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                line-height: 1;
+                margin: 0 10px;
+                span{
+                    font-size: 12px;
+                }
+            }
+        }
+        p{
+            display: flex;
+            align-items: center;
+            margin: 0 10px;       
+            span{
+                font-size: 16px;
+                font-weight: 600;
+                margin-right: 5px;
+            }
+            img{
+                border-radius: 50%;
+            }
+        }
+        .header-vip{
+            margin-left: 5px;
+        }
+    }
+    img{
+        width: 35px;
+        height: 35px;
+    }
+}

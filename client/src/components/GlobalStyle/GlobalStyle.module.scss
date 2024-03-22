@@ -1,0 +1,15 @@
+@import 'normalize.css';
+
+h1,h2,h3,h4,h5,h6,p,span{
+    padding: 0;
+    margin: 0;
+}
+ul,li{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+input,button{
+    border: none;
+    outline: none;
+}
