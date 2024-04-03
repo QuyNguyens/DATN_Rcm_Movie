@@ -1,25 +1,138 @@
 import classNames from 'classnames/bind';
 import style from './Header.module.scss';
-import logo from '../../../../assets/1.jpeg';
+import { useEffect, useState, useRef, useContext, Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 import axios from 'axios';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import LogoutIcon from '@mui/icons-material/Logout';
+import AutoGraphIcon from '@mui/icons-material/AutoGraph';
+import Tooltip from '@mui/material/Tooltip';
+import Avatar from '@mui/material/Avatar';
+import CastleIcon from '@mui/icons-material/Castle';
+import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import GoogleIcon from '@mui/icons-material/Google';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import logo from '../../../../assets/1.jpeg';
+import { UserContext } from "../../../../UserContext";
+import { MovieContext } from "../../../../MovieContext";
 
 const cx = classNames.bind(style);
 function Header() {
+    const {user,setUser} = useContext(UserContext);
+    const {setMovieCol} = useContext(MovieContext);
     const [isCountry,setIsCountry] = useState(false);
     const [isGenre,setIsGenre] = useState(false);
+    const [isAvatar,setIsAvatar] = useState(false);
     const [country,setCountry] = useState();
     const [genre,setGenre] = useState();
+    const [openLogin, setOpenLogin] = useState(false);
+    const [openSignUp, setOpenSignUp] = useState(false);
+    const [isEmailErr,setIsEmailErr] = useState(false);
+    const [isEmailErrLogin,setIsEmailErrLogin] = useState(false);
+    const [isPasswordErrLogin,setIsPasswordErrLogin] = useState(false);
 
+    const userLogin = useRef({
+        Email: '',
+        Password: ''
+      });
+    const userSignUp = useRef({
+        Email:'',
+        Password:''
+    })
+
+    const handleSetLogin = (e, check) =>{
+        if(isEmailErrLogin == true){
+            setIsEmailErrLogin(false);
+            setIsPasswordErrLogin(false);
+        }
+        switch(check){
+            case 0:
+                userLogin.current.Email = e.target.value;
+                break;
+            case 1:
+                userLogin.current.Password = e.target.value;
+                break;
+            case 2:
+                userSignUp.current.Email = e.target.value;
+                break;
+            default :
+                userSignUp.current.Password = e.target.value;
+        }
+    }
+
+    const handleLogout = () =>{
+        setUser(null);
+    }
+
+    //get user
+    const handleLogin = () =>{
+        axios.post(import.meta.env.VITE_POST_SIGNIN,userLogin.current)
+        .then(data => {
+            setUser(data.data) 
+        })
+        .catch(err => {
+            if(err.response.data?.status == 400){
+                setIsEmailErrLogin(true);
+            }else{
+                setIsPasswordErrLogin(true);
+            }
+        });
+    }
+
+    //create user
+    const handleSignUp = () =>{
+        axios.post(import.meta.env.VITE_POST_SIGNUP,userSignUp.current)
+        .then(() => {
+            setIsEmailErr(false);})
+        .catch(() => setIsEmailErr(true));
+    }
+    //handle Close the dialog login
+    function handleClose() {
+        setOpenLogin(false);
+        setOpenSignUp(false);
+    }
+    
+    const handleClickOpen = (check) => {
+        if(check == 0){
+            //setOpenLogin(false);
+            setOpenSignUp(true);
+        }else{
+            setOpenLogin(true);
+            setOpenSignUp(false);
+        }
+    };
+
+    // get country and genre
     useEffect(()=> {
-        axios.get("https://localhost:7135/api/Movie/get-list-genre")
+        axios.get(import.meta.env.VITE_GET_GENRE)
         .then(result => setGenre(result.data))
         .catch(err => console.log(err));
-        axios.get("https://localhost:7135/api/Movie/get-list-country")
+        axios.get(import.meta.env.VITE_GET_COUNTRY)
         .then(result => setCountry(result.data))
         .catch(err => console.log(err));
     },[])
+
+    //get by country
+    const handleColabrate = (colabrate,check) =>{
+        if(check == 0){
+            console.log('abc: ', (import.meta.env.VITE_GET_BY_COUNTRY+colabrate))
+            axios.get(import.meta.env.VITE_GET_BY_COUNTRY+colabrate)
+            .then(result => setMovieCol(result.data))
+            .catch(err => console.log(err))
+        }else{
+            axios.get(import.meta.env.VITE_GET_BY_GENRE+colabrate)
+            .then(result => setMovieCol(result.data))
+            .catch(err => console.log(err))
+        }
+    }
     return ( <div className={cx('header')}>
                 <div className={cx('header-left')}>
                     <Link to="/">
@@ -33,7 +146,7 @@ function Header() {
                         {isCountry && (
                             <ul>
                                 {country.map((item, index) => (
-                                    <li key={index}>
+                                    <li key={index} onClick={() => handleColabrate(item.nameContry,0)}>
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
                                         </svg>
@@ -48,7 +161,7 @@ function Header() {
                         {isGenre && (
                             <ul>
                                 {genre.map((item, index) => (
-                                    <li key={index}>
+                                    <li key={index} onClick={() => handleColabrate(item.nameGenre,1)}>
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
                                         </svg>
@@ -64,22 +177,169 @@ function Header() {
                         <input type="text" placeholder="Tìm kiếm phim..." />
                         <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg"><title>icon/search</title><g id="控件" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd"><g id="icon/search" fill="#FFFFFF" fillRule="nonzero"><path d="M11.5,4 C15.6421356,4 19,7.35786438 19,11.5 C19,13.2425442 18.4057323,14.8462897 17.408807,16.1196265 L20.1793786,18.890165 C20.3746408,19.0854272 20.3746408,19.4020097 20.1793786,19.5972718 L19.4722718,20.3043786 C19.2770097,20.4996408 18.9604272,20.4996408 18.765165,20.3043786 L15.9775948,17.5173134 C14.7279648,18.4487017 13.1783637,19 11.5,19 C7.35786438,19 4,15.6421356 4,11.5 C4,7.35786438 7.35786438,4 11.5,4 Z M11.5,6 C8.46243388,6 6,8.46243388 6,11.5 C6,14.5375661 8.46243388,17 11.5,17 C14.5375661,17 17,14.5375661 17,11.5 C17,8.46243388 14.5375661,6 11.5,6 Z" id="形状结合"></path></g></g></svg>
                     </div>
-                    <ul>
-                        <li>
-                        <svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg"><title>icon/history</title><g id="控件" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd"><g id="icon/playlist/normal" fill="#FFFFFF"><path d="M16,6 C21.5228475,6 26,10.4771525 26,16 C26,21.5228475 21.5228475,26 16,26 C10.4771525,26 6,21.5228475 6,16 C6,10.4771525 10.4771525,6 16,6 Z M16,8 C11.581722,8 8,11.581722 8,16 C8,20.418278 11.581722,24 16,24 C20.418278,24 24,20.418278 24,16 C24,11.581722 20.418278,8 16,8 Z" id="形状结合" fillRule="nonzero"></path><path d="M15.5,11 L16.5,11 C16.7761424,11 17,11.2238576 17,11.5 L17,13.7 L17,13.7 L17,15.9 C17,16.1761424 16.7761424,16.4 16.5,16.4 L15.5,16.4 C15.2238576,16.4 15,16.1761424 15,15.9 L15,13.7 L15,13.7 L15,11.5 C15,11.2238576 15.2238576,11 15.5,11 Z" id="矩形"></path><path d="M17.0414317,14.2544733 L18.0414317,14.2544733 C18.317574,14.2544733 18.5414317,14.478331 18.5414317,14.7544733 L18.5414317,16.7544733 L18.5414317,16.7544733 L18.5414317,18.7544733 C18.5414317,19.0306157 18.317574,19.2544733 18.0414317,19.2544733 L17.0414317,19.2544733 C16.7652893,19.2544733 16.5414317,19.0306157 16.5414317,18.7544733 L16.5414317,16.7544733 L16.5414317,16.7544733 L16.5414317,14.7544733 C16.5414317,14.478331 16.7652893,14.2544733 17.0414317,14.2544733 Z" id="矩形备份" transform="translate(17.541432, 16.754473) rotate(124.000000) translate(-17.541432, -16.754473) "></path></g></g></svg>
-                            <span>Lịch sử xem</span>
-                        </li>
-                        <li>
-                            <svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg"><title>icon/language</title><g id="控件" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd"><g id="icon/language/normal" fill="#FFFFFF" fillRule="nonzero"><path d="M16,6 C21.5228475,6 26,10.4771525 26,16 C26,21.5228475 21.5228475,26 16,26 C10.4771525,26 6,21.5228475 6,16 C6,10.4771525 10.4771525,6 16,6 Z M18.9680668,17.0011121 L13.0319332,17.0011121 C13.1651001,19.076818 13.7084377,20.9701959 14.5427894,22.369792 C14.7225839,22.6713911 15.0290354,23.0415272 15.4621438,23.4802002 L15.6554904,23.6724255 C15.8483921,23.8607887 16.1558962,23.8623025 16.350643,23.6758476 C16.8600321,23.1881472 17.2288879,22.7527954 17.4572106,22.369792 C18.2915623,20.9701959 18.8348999,19.076818 18.9680668,17.0011121 Z M11.0247076,17.0004018 L8.06201291,17.0009551 C8.40483424,19.747474 10.1399105,22.0615118 12.5386417,23.2144687 C11.7029578,21.6120929 11.1456008,19.4346566 11.0247076,17.0004018 Z M23.9379871,17.0009551 L20.9752924,17.0004018 C20.8543992,19.4346566 20.2970422,21.6120929 19.4619572,23.215239 C21.8600895,22.0615118 23.5951658,19.747474 23.9379871,17.0009551 Z M12.5380428,8.78476098 L12.5118876,8.79845221 C10.1267235,9.95585972 8.4031369,12.2633118 8.06188768,15.0000487 L11.0246578,15.0006003 C11.1454478,12.565941 11.7028432,10.3881271 12.5380428,8.78476098 Z M15.6491922,8.32463677 C15.1398884,8.81272653 14.7710874,9.24825244 14.5427894,9.63121448 C13.7084377,11.0308106 13.1651001,12.9241885 13.0319332,14.9998944 L18.9680668,14.9998944 C18.8348999,12.9241885 18.2915623,11.0308106 17.4572106,9.63121448 C17.2774372,9.32965073 16.9710365,8.95938827 16.5380086,8.5204271 L16.3447137,8.32805278 C16.1517595,8.139465 15.8439894,8.1379534 15.6491922,8.32463677 Z M19.4613583,8.78553132 L19.4839504,8.82723968 C20.3069369,10.4264914 20.8556156,12.5873744 20.9753422,15.0006003 L23.9381123,15.0000487 C23.5955885,12.2530898 21.8603818,9.93862863 19.4613583,8.78553132 Z" id="形状结合"></path></g></g></svg>
-                            <span>Ngôn ngữ</span>
-                        </li>
-                    </ul>
-                    <p><span>Quy Nguyen</span> 
-                        <img src={logo} alt="" />
-                    </p>
-                    <div className={cx('header-vip')}>
-                        <svg width="82px" height="36px" viewBox="0 0 82 36" version="1.1" xmlns="http://www.w3.org/2000/svg"><title>Btn/JoinVIP@2x</title><g id="页面-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd"><g id="Btn/JoinVIP"><rect id="btn" fill="#F2BF83" x="0" y="0" width="82" height="36" rx="4"></rect><g id="ic/header/vip" transform="translate(16.000000, 7.000000)"><g id="编组" transform="translate(2.272727, 2.272727)"><rect id="矩形" x="0" y="0" width="17.4545455" height="17.4545455"></rect><path d="M9.34387684,1.2294673 C9.38302432,1.26274265 9.41941398,1.29913231 9.45268933,1.33827979 L12.6438005,5.09252826 C12.7678334,5.23844933 12.9672341,5.29583356 13.1498573,5.23816308 L16.3928959,4.21404564 C16.7689495,4.09529187 17.1700701,4.30387461 17.2888239,4.67992822 C17.3197801,4.77795604 17.3292049,4.88151223 17.3164542,4.9835179 L16.0912642,14.7850379 C16.0354346,15.218502 15.6919302,15.5585618 15.2578125,15.6090605 C13.0809659,15.8696868 10.9041193,16 8.72727273,16 C6.55042614,16 4.37357955,15.8696868 2.19673295,15.6090605 C1.76261525,15.5585618 1.41911089,15.218502 1.36328125,14.7850379 L0.138091253,4.9835179 C0.0891770767,4.59220449 0.366746499,4.23532952 0.75805991,4.18641534 C0.86006558,4.17366464 0.963621768,4.18308949 1.06164959,4.21404564 L4.30468813,5.23816308 C4.48731134,5.29583356 4.68671201,5.23844933 4.81074492,5.09252826 L8.00185612,1.33827979 C8.34239717,0.937643258 8.94324031,0.888926246 9.34387684,1.2294673 Z M11.3255702,7.62206953 C11.1070773,7.475867 10.8114285,7.53443367 10.6651731,7.75289118 L8.71175939,10.6712476 L6.75834571,7.75289118 C6.61209027,7.53443367 6.31644149,7.475867 6.09794856,7.62206953 L5.27743248,8.17122304 C5.05894533,8.31745172 5.00036827,8.61311232 5.14659695,8.83159946 L7.90589538,12.954397 L7.94722469,13.0117087 C8.34756424,13.5275144 9.14683426,13.5084104 9.51762341,12.954397 L12.2769218,8.83159946 C12.4231505,8.61311232 12.3645735,8.31745172 12.1460863,8.17122304 Z" id="形状结合" fill="#111319"></path></g></g><text id="Renew" fontFamily="SFPro-Bold, SF Pro" fontSize="14" fontWeight="bold" fill="#111319"><tspan x="42.2336426" y="23">VIP</tspan></text></g></g></svg>
+                    <div className={cx('header-history')}>
+                        <Link to ="/history">
+                            <svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg"><title>icon/history</title><g id="控件" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd"><g id="icon/playlist/normal" fill="#FFFFFF"><path d="M16,6 C21.5228475,6 26,10.4771525 26,16 C26,21.5228475 21.5228475,26 16,26 C10.4771525,26 6,21.5228475 6,16 C6,10.4771525 10.4771525,6 16,6 Z M16,8 C11.581722,8 8,11.581722 8,16 C8,20.418278 11.581722,24 16,24 C20.418278,24 24,20.418278 24,16 C24,11.581722 20.418278,8 16,8 Z" id="形状结合" fillRule="nonzero"></path><path d="M15.5,11 L16.5,11 C16.7761424,11 17,11.2238576 17,11.5 L17,13.7 L17,13.7 L17,15.9 C17,16.1761424 16.7761424,16.4 16.5,16.4 L15.5,16.4 C15.2238576,16.4 15,16.1761424 15,15.9 L15,13.7 L15,13.7 L15,11.5 C15,11.2238576 15.2238576,11 15.5,11 Z" id="矩形"></path><path d="M17.0414317,14.2544733 L18.0414317,14.2544733 C18.317574,14.2544733 18.5414317,14.478331 18.5414317,14.7544733 L18.5414317,16.7544733 L18.5414317,16.7544733 L18.5414317,18.7544733 C18.5414317,19.0306157 18.317574,19.2544733 18.0414317,19.2544733 L17.0414317,19.2544733 C16.7652893,19.2544733 16.5414317,19.0306157 16.5414317,18.7544733 L16.5414317,16.7544733 L16.5414317,16.7544733 L16.5414317,14.7544733 C16.5414317,14.478331 16.7652893,14.2544733 17.0414317,14.2544733 Z" id="矩形备份" transform="translate(17.541432, 16.754473) rotate(124.000000) translate(-17.541432, -16.754473) "></path></g></g></svg>
+                            <span >Lịch sử xem</span>
+                        </Link>
                     </div>
+                    {user ?
+                    <Box sx={{display:'flex',alignItems:'center'}}><span style={{marginRight:'10px'}}>Quy Nguyen</span> 
+                    <Box onMouseEnter={() => setIsAvatar(true)} onMouseLeave={() => setIsAvatar(false)} sx={{position:'relative'}}>
+                        <Avatar alt="Remy Sharp" src={logo}/>
+                        {
+                            isAvatar && <Box sx={{backgroundColor: 'white !important',zIndex:'100',width:'170px', display:'flex',flexDirection:'column', padding:'10px',borderRadius:'10px', position:'absolute',bottom:'-205px',left:'-60px'}}>
+                                <Link style={{margin:'5px 0',textDecoration:'none',color:'black',fontWeight:'600',fontSize:'18px'}} to="/profile">
+                                    <Button fullWidth variant="outlined" startIcon={<AccountBoxIcon />}>
+                                            Profile
+                                    </Button>
+                                </Link>
+                                <Link style={{margin:'5px 0',textDecoration:'none',color:'black',fontWeight:'600',fontSize:'18px'}} to="/favorite">
+                                    <Button fullWidth variant="outlined" startIcon={<FavoriteBorderIcon />}>
+                                        Sở thích
+                                    </Button>   
+                                </Link>
+                                <Link style={{margin:'5px 0',textDecoration:'none',color:'black',fontWeight:'600',fontSize:'18px'}} to="/statistic">
+                                    <Button fullWidth variant="outlined" startIcon={<AutoGraphIcon />}>
+                                        Thống kê
+                                    </Button>
+                                </Link>
+                                <Link to="/" style={{margin:'5px 0',textDecoration:'none',color:'black',fontWeight:'600',fontSize:'18px'}} >
+                                    <Button onClick={handleLogout} fullWidth variant="outlined" startIcon={<LogoutIcon />}>
+                                        Đăng xuất
+                                    </Button>   
+                                </Link>
+
+                            </Box>
+                        }
+                    </Box>
+                    </Box>:
+                    <div>
+                        <Tooltip title="Login">
+                                <Button onClick={() => setOpenLogin(true)} variant="contained">Login</Button>
+                        </Tooltip>         
+                        <Dialog
+                            open={openLogin}
+                            onClose={handleClose}
+                            PaperProps={{
+                                component: 'form'
+                            }}
+                            >
+                            <DialogTitle textAlign='center' fontSize='30px'>Login</DialogTitle>
+                            <DialogContent>
+                                <DialogContentText maxWidth='400px'>
+                                To subscribe to this website, please enter your email address here. We
+                                will send updates occasionally.
+                                </DialogContentText>
+                                <TextField
+                                onChange={(e) => handleSetLogin(e,0)}
+                                autoFocus
+                                required
+                                margin="dense"
+                                name="email"
+                                label="Email Address"
+                                type="email"
+                                fullWidth
+                                variant="standard"
+                                />
+                                 {isEmailErrLogin && <span style={{color:'red',fontSize:'14px'}}>The email is wrong!!!. Please try again.</span>}
+                                <TextField
+                                onChange={(e) => handleSetLogin(e,1)}
+                                autoFocus
+                                required
+                                margin="dense"
+                                name="password"
+                                label="password"
+                                type="password"
+                                fullWidth
+                                variant="standard"
+                                />
+                                 {isPasswordErrLogin && <span style={{color:'red',fontSize:'14px'}}>The password is wrong!!!. Please try again.</span>}
+                                <div style={{height:"15px"}}></div>
+                           
+                                <Button fullWidth variant="outlined" color='warning' startIcon={<GoogleIcon />}>
+                                    Continue with Google 
+                                </Button>
+                                <div style={{height:"15px"}}></div>
+                                <Button fullWidth variant="outlined" startIcon={<FacebookIcon />}>
+                                Continue with Facebook 
+                                </Button>
+                                <div style={{height:"25px"}}></div>
+                                <p style={{textAlign:'center'}}>Don't have any account? 
+                                <Fragment>
+                                    <Link onClick={() => handleClickOpen(0)}>Sign Up</Link>
+                                    <Dialog
+                                        open={openSignUp}
+                                        onClose={handleClose}
+                                        PaperProps={{
+                                            component: 'form'
+                                        }}
+                                        >
+                                        <DialogTitle textAlign='center' fontSize='30px'>Sign Up</DialogTitle>
+                                        <DialogContent>
+                                            <DialogContentText maxWidth='400px'>
+                                            Are you ready enjoy the moment with our, please enter your email address here. We
+                                            will send updates occasionally.
+                                            </DialogContentText>
+                                            <TextField
+                                            onChange={(e) => handleSetLogin(e,2)}
+                                            autoFocus
+                                            required
+                                            margin="dense"
+                                            name="email"
+                                            label="Email Address"
+                                            type="email"
+                                            fullWidth
+                                            variant="standard"
+                                            />
+                                            {isEmailErr && <span style={{color:'red',fontSize:'14px'}}>The email alreay existing!!!. Please try again.</span>}
+                                            <TextField
+                                            onChange={(e) => handleSetLogin(e,3)}
+                                            autoFocus
+                                            required
+                                            margin="dense"
+                                            name="password"
+                                            label="password"
+                                            type="password"
+                                            fullWidth
+                                            variant="standard"
+                                            />
+                                            <div style={{height:"15px"}}></div>
+                                    
+                                            <Button fullWidth variant="outlined" color='warning' startIcon={<GoogleIcon />}>
+                                                Continue with Google 
+                                            </Button>
+                                            <div style={{height:"15px"}}></div>
+                                            <Button fullWidth variant="outlined" startIcon={<FacebookIcon />}>
+                                            Continue with Facebook 
+                                            </Button>
+                                            <div style={{height:"25px"}}></div>
+                                            <p style={{textAlign:'center'}}>Already have a account? <Link onClick={() => handleClickOpen(1)}>Login</Link>
+                                            </p>
+                                        </DialogContent>
+                                        <DialogActions>
+                                            <Button onClick={handleClose}>Cancel</Button>
+                                            <Button variant="contained" color='success' onClick={handleSignUp}>Sign Up</Button>
+                                        </DialogActions>
+                                        </Dialog>
+                                </Fragment>
+                                
+                                </p>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={() =>handleClose(0)}>Cancel</Button>
+                                <Button variant="contained" color='primary' onClick={handleLogin}>Login</Button>
+                            </DialogActions>
+                        </Dialog>
+                        
+                    </div>
+                    
+                    }
+                    <Tooltip title="VIP" >
+                        <Button style={{marginLeft:'15px'}} variant="contained" color='warning' startIcon={<CastleIcon />}>
+                            VIP
+                        </Button>
+                    </Tooltip>
                 </div>
         </div> );
 }

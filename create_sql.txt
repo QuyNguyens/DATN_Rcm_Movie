@@ -26,6 +26,7 @@ CREATE TABLE tbl_user(
 
 ---------------------------------------------------------------------
 CREATE TABLE tbl_rating(
+	RatingID int PRIMARY KEY,
 	User_ID int,
 	Movie_ID int,
 	Rating int,
@@ -37,6 +38,7 @@ CREATE TABLE tbl_rating(
 
 ----------------------------------------------------------------------
 CREATE TABLE tbl_user_subs(
+	User_SubID int PRIMARY KEY,
 	User_ID int,
 	Start_Day DateTime,
 	End_Day DateTime,
@@ -49,7 +51,7 @@ CREATE TABLE tbl_user_subs(
 
 CREATE TABLE tbl_user_movieAccess(
 	User_ID int,
-	Movie_ID int,
+	Movie_ID int PRIMARY KEY,
 	CONSTRAINT FK_UserId_movieAccess FOREIGN KEY (User_ID)
         REFERENCES tbl_user (User_ID),
 	CONSTRAINT FK_MovieId_movieAccess FOREIGN KEY (Movie_ID)
@@ -66,6 +68,7 @@ CREATE TABLE tbl_actor(
 
 ----------------------------------------------------------------------
 CREATE TABLE tbl_actor_movie(
+	Actor_MovieID int PRIMARY KEY,
 	Movie_ID int,
 	Actor_ID int,
 	role NVARCHAR(100),
@@ -84,6 +87,7 @@ CREATE TABLE tbl_genre(
 
 ----------------------------------------------------------------------
 CREATE TABLE tbl_genre_movie(
+	Genre_MovieID int primary key,
 	Movie_ID int,
 	Genre_ID int,
 	CONSTRAINT FK_movie_genre FOREIGN KEY (Movie_ID)
@@ -100,12 +104,37 @@ CREATE TABLE tbl_country(
 
 ----------------------------------------------------------------------
 CREATE TABLE tbl_country_movie(
+	Country_MovieID int PRIMARY KEY,
 	Movie_ID INT,
 	Country_ID INT,
 	CONSTRAINT FK_Movie_Country FOREIGN KEY (Movie_ID)
 	REFERENCES tbl_movie(Movie_ID),
 	CONSTRAINT FK_Country_Movie FOREIGN KEY (Country_ID)
 	REFERENCES tbl_country(Country_ID)
+);
+
+----------------------------------------------------------------------
+CREATE TABLE tbl_favorite(
+	User_ID int,
+	Movie_ID int,
+	CONSTRAINT FK_favorite FOREIGN KEY (User_ID)
+        REFERENCES tbl_user (User_ID),
+	CONSTRAINT FK_MovieId_favorite FOREIGN KEY (Movie_ID)
+        REFERENCES tbl_movie (Movie_ID)
+);
+
+----------------------------------------------------------------------
+create table tbl_statistic(
+	Statistic_ID int PRIMARY KEY,
+	User_ID int,
+	Movie_ID int,
+	Access_duration float,
+	Time_access time,
+	Date_access datetime
+	CONSTRAINT FK_statistic FOREIGN KEY (User_ID)
+        REFERENCES tbl_user (User_ID),
+	CONSTRAINT FK_MovieId_statistic FOREIGN KEY (Movie_ID)
+        REFERENCES tbl_movie (Movie_ID)
 );
 
 ----------------------------------------------------------------------

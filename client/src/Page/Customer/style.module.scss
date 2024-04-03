@@ -1,6 +1,10 @@
+:root{
+
+}
+
 // home page
 .home-page{
-  background-color: rgb(17, 19, 25);
+  background-color: var(--backgroundMild);
   .home-adv{
     height: 90vh;
     width: 100%;
@@ -13,7 +17,7 @@
       position: absolute;
       left: 0;
       top: 40%;
-      color: rgb(198, 192, 192);
+      color: var(--textWhite);
       svg{
         width: 50px;
         width: 50px;
@@ -26,7 +30,7 @@
       position: absolute;
       right: 10px;
       top: 40%;
-      color: rgb(198, 192, 192);
+      color: var(--textWhite);
       svg{
         width: 50px;
         width: 50px;
@@ -82,24 +86,6 @@
         line-height: 1.2em;
         text-align:justify;
       }
-      .home-inf-btn{
-        svg{
-          width: 45px;
-          height: 45px;
-          margin-right: 15px;
-          &:first-child:hover{
-            circle{
-              fill: rgb(12, 236, 72);
-            }
-          }
-          &:last-child:hover{
-            circle{
-              fill: rgb(180, 177, 177);
-            }
-          }
-        }
-        
-      }
     }
   }
   .home-movie{
@@ -119,7 +105,7 @@
         z-index: 5;
         left: 0;
         top: 40%;
-        color: rgb(112, 110, 110);
+        color: var(--textGray);
         svg{
           width: 50px;
           width: 50px;
@@ -133,7 +119,7 @@
         right: 10px;
         top: 40%;
         z-index: 5;
-        color: rgb(112, 110, 110);
+        color: var(--textGray);
         svg{
           width: 50px;
           width: 50px;
@@ -159,6 +145,129 @@
           font-size: 14px;
           font-weight: 600;
         }
+      }
+    }
+  }
+}
+
+// history
+
+.history{
+  display: flex;
+  justify-content: center;
+  .history-box{
+    width: 85%;
+    h1{
+      padding: 50px 0 15px 0 ;
+      text-align: center;
+      color: white;
+      font-weight: 600;
+      margin: 0 100px;
+    }
+    div{
+      display: flex;
+      justify-content: space-between;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--borderLeftbar);
+    }
+    ul{
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      flex-wrap: wrap;
+      li{
+        width: 24%;
+        margin: 10px 0;
+        position: relative;
+        div{
+          display: flex;
+          justify-content: space-between;
+          border-bottom: none;
+          p{
+            padding: 3px 7px;
+            background-color: var(--removeColor);
+            border-radius: 7px;
+            color: white;
+            &:hover{
+              background-color: var(--removeHover);
+            }
+            svg{
+              fill: black;
+              font-weight: 600;
+            }
+          }
+        }
+        img{
+          position: relative;
+          width: 100%;
+          margin-bottom: 10px;
+          border-radius: 5px;
+          &:hover{
+            scale: 1.05;
+          }
+        }
+        span{
+          color: white;
+          font-weight: 600;
+          margin-top: 10px;
+          font-size: 16px;
+        }
+        .history-icon-last{
+          border-bottom: none;
+          svg{
+            border-radius: 50%;
+            position: absolute;
+            right: 10px;
+            bottom: 60px;
+            width: 25px;
+            height: 25px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// statistic
+.statistic{
+  display: flex;
+  justify-content: center;
+  background-color: var(--backgroundMild) !important;
+  .statistic-box{
+    width: 90%;
+    h1{
+      padding: 30px;
+      text-align: center;
+      color: white;
+      font-weight: 600;
+      border-bottom: 1px solid var(--borderLeftbar);
+    }
+    .statistic-m{
+      margin-top: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-evenly;
+      .statistic-left{
+        width: 40%;
+        tspan{
+          fill: white;
+        }
+      }
+      .statistic-right{
+        width: 50%;
+        padding: 20px;
+        table{
+          width: 400px;
+        }
+      }
+  
+    }
+    .statistic-gift{
+      display: flex;
+      align-items: center;
+      .statistic-gifticon{
+        margin-left: 10px;
+        
       }
     }
   }

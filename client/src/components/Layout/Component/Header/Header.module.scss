@@ -70,22 +70,25 @@
                 outline: none;
             }
         }
-        ul{
+        .header-history{
             padding: 0;
             display: flex;
             margin: 0 10px;
 
-            li{
+            a{
+                margin: 0 10px;
+                text-decoration: none;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
                 line-height: 1;
-                margin: 0 10px;
-                span{
-                    font-size: 12px;
+                color: white;
+                    span{
+                        font-size: 12px;
+                    }
                 }
-            }
+            
         }
         p{
             display: flex;
@@ -99,10 +102,7 @@
             img{
                 border-radius: 50%;
             }
-        }
-        .header-vip{
-            margin-left: 5px;
-        }
+        } 
     }
     img{
         width: 35px;

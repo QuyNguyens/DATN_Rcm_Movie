@@ -1,11 +1,11 @@
-import { Outlet } from "react-router-dom";
 import Footer from "../Component/Footer";
 import Header from "../Component/Header";
 
-function DefaultLayout() {
+// eslint-disable-next-line react/prop-types
+function DefaultLayout({children}) {
     return ( <div>
         <Header/>
-        <Outlet/>
+        {children}
         <Footer/>
     </div> );
 }
