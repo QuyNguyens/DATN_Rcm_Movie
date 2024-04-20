@@ -3,15 +3,20 @@ import styles from './style.module.scss';
 import images from '../../../assets/3.jpg';
 import Button from '@mui/material/Button';
 import {Link} from 'react-router-dom';
+import { MovieContext } from "../../../MovieContext";
+import { useContext } from 'react';
+
 const cx = classNames.bind(styles);
 function Leftbar() {
+    const {setIsOpenVip} = useContext(MovieContext);
+
     return ( <div className={cx('history-left')}>
                 <div>
                     <img src={images} alt="" />
                     <span>Quy Nguyen</span>
                 </div>
                 <div className={cx('history-left-btn')}>
-                     <Button variant="contained" color='warning'>Gia Nhập VIP</Button>
+                     <Button onClick={() => setIsOpenVip(2)} variant="contained" color='warning'>Gia Nhập VIP</Button>
                 </div>
                 <ul>
                     <li><Link to="/profile">Profile</Link></li>

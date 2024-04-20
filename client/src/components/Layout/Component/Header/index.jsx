@@ -1,7 +1,7 @@
 import classNames from 'classnames/bind';
 import style from './Header.module.scss';
 import { useEffect, useState, useRef, useContext, Fragment } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -23,11 +23,14 @@ import FacebookIcon from '@mui/icons-material/Facebook';
 import logo from '../../../../assets/1.jpeg';
 import { UserContext } from "../../../../UserContext";
 import { MovieContext } from "../../../../MovieContext";
+import { notify } from '../Notify';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const cx = classNames.bind(style);
 function Header() {
     const {user,setUser} = useContext(UserContext);
-    const {setMovieCol} = useContext(MovieContext);
+    const {movieCol,setMovieCol,searchMovie,setSearchMovie,isOpenVip,setIsOpenVip} = useContext(MovieContext);
     const [isCountry,setIsCountry] = useState(false);
     const [isGenre,setIsGenre] = useState(false);
     const [isAvatar,setIsAvatar] = useState(false);
@@ -38,7 +41,8 @@ function Header() {
     const [isEmailErr,setIsEmailErr] = useState(false);
     const [isEmailErrLogin,setIsEmailErrLogin] = useState(false);
     const [isPasswordErrLogin,setIsPasswordErrLogin] = useState(false);
-
+    const [search, setSearch] = useState('');
+    const navigate = useNavigate();
     const userLogin = useRef({
         Email: '',
         Password: ''
@@ -76,7 +80,20 @@ function Header() {
     const handleLogin = () =>{
         axios.post(import.meta.env.VITE_POST_SIGNIN,userLogin.current)
         .then(data => {
-            setUser(data.data) 
+            notify('Login success');
+            let listId = [];
+            for(let i=12;i<=17;i++){
+                listId.push(i.toString())
+            }
+            axios.post(import.meta.env.VITE_GET_RECOMMEND,listId)
+            .then(result => {
+                const newMovie = {...movieCol};
+                newMovie.movieRcm = result.data;
+                setMovieCol(newMovie);
+                setSearchMovie([...searchMovie,...result.data])
+                })
+            .catch(err => console.log('err2: ',err));
+            setUser(data.data); 
         })
         .catch(err => {
             if(err.response.data?.status == 400){
@@ -91,6 +108,7 @@ function Header() {
     const handleSignUp = () =>{
         axios.post(import.meta.env.VITE_POST_SIGNUP,userSignUp.current)
         .then(() => {
+            notify('Login success');
             setIsEmailErr(false);})
         .catch(() => setIsEmailErr(true));
     }
@@ -98,15 +116,17 @@ function Header() {
     function handleClose() {
         setOpenLogin(false);
         setOpenSignUp(false);
+        setIsOpenVip(false);
     }
     
     const handleClickOpen = (check) => {
         if(check == 0){
-            //setOpenLogin(false);
             setOpenSignUp(true);
-        }else{
+        }else if(check == 1){
             setOpenLogin(true);
             setOpenSignUp(false);
+        }else{
+            setIsOpenVip(true);
         }
     };
 
@@ -125,12 +145,30 @@ function Header() {
         if(check == 0){
             console.log('abc: ', (import.meta.env.VITE_GET_BY_COUNTRY+colabrate))
             axios.get(import.meta.env.VITE_GET_BY_COUNTRY+colabrate)
-            .then(result => setMovieCol(result.data))
+            .then(result =>{
+                var newMovieCol = {...movieCol};
+                newMovieCol.movieClb = result.data;
+                setMovieCol(newMovieCol);
+            })
             .catch(err => console.log(err))
         }else{
             axios.get(import.meta.env.VITE_GET_BY_GENRE+colabrate)
             .then(result => setMovieCol(result.data))
             .catch(err => console.log(err))
+        }
+    }
+    const handleDetailMovie =(index) =>{
+        axios.post(import.meta.enc.VITE_POST_HISTORY,{userId:user.userId,movieId: index})
+        .then(result => console.log('add to history: ',result))
+        .catch(err => console.log('failed to add history: ', err));
+        setSearch('');
+        navigate(`/detail-movie/${index}`);
+    }
+    const handleToHistory = () =>{
+        if(user == null){
+            setOpenLogin(true)
+        }else{
+            navigate('/history')
         }
     }
     return ( <div className={cx('header')}>
@@ -145,7 +183,7 @@ function Header() {
                         <button>Quốc gia</button>
                         {isCountry && (
                             <ul>
-                                {country.map((item, index) => (
+                                {country?.map((item, index) => (
                                     <li key={index} onClick={() => handleColabrate(item.nameContry,0)}>
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
@@ -160,7 +198,7 @@ function Header() {
                         <button>Thể Loại</button>
                         {isGenre && (
                             <ul>
-                                {genre.map((item, index) => (
+                                {genre?.map((item, index) => (
                                     <li key={index} onClick={() => handleColabrate(item.nameGenre,1)}>
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
@@ -172,19 +210,34 @@ function Header() {
                         )}
                     </div>
                 </div>
+                <ToastContainer/>
                 <div className={cx('header-right')}>
-                    <div>
-                        <input type="text" placeholder="Tìm kiếm phim..." />
+                    <div className={cx('header-right-search')}>
+                        <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Tìm kiếm phim..." />
                         <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg"><title>icon/search</title><g id="控件" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd"><g id="icon/search" fill="#FFFFFF" fillRule="nonzero"><path d="M11.5,4 C15.6421356,4 19,7.35786438 19,11.5 C19,13.2425442 18.4057323,14.8462897 17.408807,16.1196265 L20.1793786,18.890165 C20.3746408,19.0854272 20.3746408,19.4020097 20.1793786,19.5972718 L19.4722718,20.3043786 C19.2770097,20.4996408 18.9604272,20.4996408 18.765165,20.3043786 L15.9775948,17.5173134 C14.7279648,18.4487017 13.1783637,19 11.5,19 C7.35786438,19 4,15.6421356 4,11.5 C4,7.35786438 7.35786438,4 11.5,4 Z M11.5,6 C8.46243388,6 6,8.46243388 6,11.5 C6,14.5375661 8.46243388,17 11.5,17 C14.5375661,17 17,14.5375661 17,11.5 C17,8.46243388 14.5375661,6 11.5,6 Z" id="形状结合"></path></g></g></svg>
+                    {search !='' && <ul>
+                    {searchMovie
+                        .filter((item) => {
+                            return search.toLowerCase() === ''
+                            ? item
+                            : item.title.toLowerCase().includes(search);
+                        })
+                        .map((item, index) =>{
+                            return <li key={index}>
+                                <p onClick={() => handleDetailMovie(item.movieId)}>{index} {item.title}</p>
+                            </li>
+                        })
+                    }
+                    </ul>}
                     </div>
                     <div className={cx('header-history')}>
-                        <Link to ="/history">
+                        <p onClick={() => handleToHistory()}>
                             <svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg"><title>icon/history</title><g id="控件" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd"><g id="icon/playlist/normal" fill="#FFFFFF"><path d="M16,6 C21.5228475,6 26,10.4771525 26,16 C26,21.5228475 21.5228475,26 16,26 C10.4771525,26 6,21.5228475 6,16 C6,10.4771525 10.4771525,6 16,6 Z M16,8 C11.581722,8 8,11.581722 8,16 C8,20.418278 11.581722,24 16,24 C20.418278,24 24,20.418278 24,16 C24,11.581722 20.418278,8 16,8 Z" id="形状结合" fillRule="nonzero"></path><path d="M15.5,11 L16.5,11 C16.7761424,11 17,11.2238576 17,11.5 L17,13.7 L17,13.7 L17,15.9 C17,16.1761424 16.7761424,16.4 16.5,16.4 L15.5,16.4 C15.2238576,16.4 15,16.1761424 15,15.9 L15,13.7 L15,13.7 L15,11.5 C15,11.2238576 15.2238576,11 15.5,11 Z" id="矩形"></path><path d="M17.0414317,14.2544733 L18.0414317,14.2544733 C18.317574,14.2544733 18.5414317,14.478331 18.5414317,14.7544733 L18.5414317,16.7544733 L18.5414317,16.7544733 L18.5414317,18.7544733 C18.5414317,19.0306157 18.317574,19.2544733 18.0414317,19.2544733 L17.0414317,19.2544733 C16.7652893,19.2544733 16.5414317,19.0306157 16.5414317,18.7544733 L16.5414317,16.7544733 L16.5414317,16.7544733 L16.5414317,14.7544733 C16.5414317,14.478331 16.7652893,14.2544733 17.0414317,14.2544733 Z" id="矩形备份" transform="translate(17.541432, 16.754473) rotate(124.000000) translate(-17.541432, -16.754473) "></path></g></g></svg>
                             <span >Lịch sử xem</span>
-                        </Link>
+                        </p>
                     </div>
                     {user ?
-                    <Box sx={{display:'flex',alignItems:'center'}}><span style={{marginRight:'10px'}}>Quy Nguyen</span> 
+                    <Box sx={{display:'flex',alignItems:'center'}}><span style={{marginRight:'10px'}}>{user.userName}</span> 
                     <Box onMouseEnter={() => setIsAvatar(true)} onMouseLeave={() => setIsAvatar(false)} sx={{position:'relative'}}>
                         <Avatar alt="Remy Sharp" src={logo}/>
                         {
@@ -336,9 +389,33 @@ function Header() {
                     
                     }
                     <Tooltip title="VIP" >
-                        <Button style={{marginLeft:'15px'}} variant="contained" color='warning' startIcon={<CastleIcon />}>
-                            VIP
-                        </Button>
+                        <Fragment>
+                            <Button onClick={() => handleClickOpen(2)} style={{marginLeft:'15px'}} variant="contained" color='warning' startIcon={<CastleIcon />}>
+                                VIP
+                            </Button>
+                            <Dialog
+                                open={isOpenVip}
+                                onClose={handleClose}
+                                aria-labelledby="alert-dialog-title"
+                                aria-describedby="alert-dialog-description"
+                            >
+                                <DialogTitle id="alert-dialog-title">
+                                {"Use Google's location service?"}
+                                </DialogTitle>
+                                <DialogContent>
+                                <DialogContentText id="alert-dialog-description">
+                                    Let Google help apps determine location. This means sending anonymous
+                                    location data to Google, even when no apps are running.
+                                </DialogContentText>
+                                </DialogContent>
+                                <DialogActions>
+                                <Button onClick={handleClose}>Disagree</Button>
+                                <Button onClick={handleClose} autoFocus>
+                                    Agree
+                                </Button>
+                                </DialogActions>
+                            </Dialog>
+                            </Fragment>
                     </Tooltip>
                 </div>
         </div> );

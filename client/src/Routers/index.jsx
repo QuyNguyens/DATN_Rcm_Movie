@@ -2,7 +2,6 @@ import Profile from "../Page/Customer/Profile";
 import FavoritePage from "../Page/Customer/favoritePage";
 import HistoryPage from "../Page/Customer/hisrotyPage";
 import Home from "../Page/Customer/home";
-import LoginPage from "../Page/Customer/loginPage";
 import Statistic from "../Page/Customer/statistic";
 import { HistoryLayout } from "../components/Layout";
 import HomeAdmin from "../Page/Admin/Home";
@@ -10,10 +9,11 @@ import AdminLayout from "../components/Layout/AdminLayout";
 import StatisticAdm from "../Page/Admin/statistic";
 import MovieAdm from "../Page/Admin/Movie";
 import UserAdm from "../Page/Admin/UserAdm";
+import DetailMovie from "../Page/Customer/detailMovie";
 
 const publicRoute = [
     {path: '/', component: Home },
-    {path: '/login', component: LoginPage },
+    {path: '/detail-movie/:id', component: DetailMovie },
     {path: '/history', component: HistoryPage,layout: HistoryLayout },
     {path: '/favorite', component: FavoritePage,layout: HistoryLayout },
     {path: '/statistic', component: Statistic,layout: HistoryLayout },

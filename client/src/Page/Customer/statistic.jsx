@@ -7,19 +7,34 @@ import Tooltip from '@mui/material/Tooltip';
 import Fab from '@mui/material/Fab';
 import Table from 'react-bootstrap/Table';
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 const cx = classNames.bind(styles);
 function Statistic() {
-      const data = [
-        { id: 0, value: 46, label: 'Japan' },
-        { id: 1, value: 15, label: 'USA' },
-        { id: 2, value: 54, label: 'Korea' },
-        { id: 3, value: 23, label: 'VietNam' },
-        { id: 4, value: 20, label: 'India' },
-      ];
+    const [data,setData] = useState();
+    const [totalValue,setTotalValue] = useState(0);
 
+    useEffect (() =>{
+        axios.get(import.meta.env.VITE_GET_STATISTIC+'1')
+        .then(result => {
+            let newdata = [];
+            [0,1,2,3,4].map((item, index) => (
+                newdata.push({
+                    id: index,
+                    value: result.data.accessTime[index],
+                    label: result.data.country[index]
+                  })
+            ));
+            let total = newdata.reduce((accumulator, currentValue) => accumulator + currentValue.value, 0);
+            total = total /60/60;
+            setTotalValue(total.toFixed(2));
+            setData(newdata);
+        })
+        .catch(err => console.log('errStatistic: ',err));
+    },[]);
+    console.log('data: ',data);
     return ( <div className={cx('statistic')}>
-                <div className={cx('statistic-box')}>
+                {data && <div className={cx('statistic-box')}>
                     <h1>Thống kê</h1>
                     <div className={cx('statistic-m')}>
                         <div className={cx('statistic-left')}>
@@ -56,7 +71,7 @@ function Statistic() {
                     </div>
                     <div className={cx('statistic-gift')}>
                         <Box sx={{width: '90%',height:'3px',backgroundColor: 'white',position:'relative'}}>
-                            <Box sx={{ width: '35%', height: '3px', backgroundColor: 'green', position:'absolute' }}>
+                            <Box sx={{ width: `${totalValue}%`, height: '3px', backgroundColor: 'green', position:'absolute' }}>
                                 <Box sx={{width:'15px',height:'15px',backgroundColor:'green', borderRadius:'50%', position:'absolute',right:'-5px',top:'-6px'}}></Box>
                             </Box>
                         </Box>
@@ -78,7 +93,7 @@ function Statistic() {
                         </Box>
                     </div>
                     <Box sx={{display:'flex',justifyContent:'center',color:'white',fontSize:'20px'}}><p>Tích đủ 10 giờ xem để nhận quà</p></Box>
-                </div>
+                </div>}
             </div> );
      }
 export default Statistic;
