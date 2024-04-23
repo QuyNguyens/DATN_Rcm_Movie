@@ -61,7 +61,7 @@ function Statistic() {
                                     {data.map((item,index) =>{
                                         return <tr key={index}>
                                                 <td>{item.label}</td>
-                                                <td>{item.value}</td>
+                                                <td>{(item.value/60).toFixed(2)}</td>
                                         </tr>
                                     })}
                                     
@@ -71,12 +71,12 @@ function Statistic() {
                     </div>
                     <div className={cx('statistic-gift')}>
                         <Box sx={{width: '90%',height:'3px',backgroundColor: 'white',position:'relative'}}>
-                            <Box sx={{ width: `${totalValue}%`, height: '3px', backgroundColor: 'green', position:'absolute' }}>
+                            <Box sx={{ width: `${totalValue*10}%`, height: '3px', backgroundColor: 'green', position:'absolute' }}>
                                 <Box sx={{width:'15px',height:'15px',backgroundColor:'green', borderRadius:'50%', position:'absolute',right:'-5px',top:'-6px'}}></Box>
                             </Box>
                         </Box>
                         <div className={cx('statistic-gifticon')}>
-                        <Tooltip title="Bạn đã tích được 3.5 giờ :<33">
+                        <Tooltip title={`Bạn đã tích được ${totalValue} giờ :<33`}>
                             <Fab color="primary" aria-label="add">
                                 <CardGiftcardIcon color="pink" fontSize="large" />                       
                             </Fab>

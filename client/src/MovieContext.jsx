@@ -10,7 +10,8 @@ function MovieContextProvider({children}) {
     });
     const [searchMovie,setSearchMovie] = useState([]);
     const [isOpenVip,setIsOpenVip] = useState(false);
-    return ( <MovieContext.Provider value={{movieCol,setMovieCol,setSearchMovie,searchMovie,isOpenVip,setIsOpenVip}}>
+    const [openLogin, setOpenLogin] = useState(false);
+    return ( <MovieContext.Provider value={{openLogin,setOpenLogin,movieCol,setMovieCol,setSearchMovie,searchMovie,isOpenVip,setIsOpenVip}}>
         {children}
     </MovieContext.Provider> );
 }

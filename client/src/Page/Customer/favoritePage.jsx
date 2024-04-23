@@ -44,7 +44,7 @@ function FavoritePage() {
 
     return ( <div className={cx('history')}>
           <div className={cx('history-box')}>
-          <h1>Lịch sử xem</h1>
+          <h1>Bộ sưu tập</h1>
           <div className={cx('history-edit')}>
             <span></span>
             <Tooltip title="Remove All">

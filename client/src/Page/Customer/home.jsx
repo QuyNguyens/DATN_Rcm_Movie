@@ -12,7 +12,7 @@ import { notify } from "../../components/Layout/Component/Notify";
 import {useNavigate} from 'react-router-dom';
 const cx = classNames.bind(style);
 function Home() {
-    const {movieCol,setMovieCol,searchMovie,setSearchMovie} = useContext(MovieContext);
+    const {movieCol,setMovieCol,searchMovie,setSearchMovie,setOpenLogin} = useContext(MovieContext);
     const {user} = useContext(UserContext);
     const [indexbg,setIndexbg] = useState(0);
     const [indexht,setIndexht] = useState(0);
@@ -149,15 +149,19 @@ function Home() {
     // },[])
 
     const handleDetailMovie =(index) =>{
-        axios.post(import.meta.env.VITE_POST_HISTORY,{userId:user.userId,movieId: index})
-        .then(result => console.log('add to history: ',result))
-        .catch(err => console.log('failed to add history: ', err));
-        navigate(`/detail-movie/${index}`);
+        if(user == null){
+            setOpenLogin(true);
+        }else{
+            axios.post(import.meta.env.VITE_POST_HISTORY,{userId:user.userId,movieId: index})
+            .then(result => console.log('add to history: ',result))
+            .catch(err => console.log('failed to add history: ', err));
+            navigate(`/detail-movie/${index}`);
+        }
     }
 
-    const handleToHistory = (index) =>{
+    const handleToFavorite = (index) =>{
         if(user == null){
-            notify('Bạn cần phải đăng nhập!!!');
+            setOpenLogin(true);
         }else{
             const data =  {
                 "userId": user.userId,
@@ -199,7 +203,7 @@ function Home() {
                             <PlayCircleIcon />
                         </Fab>
 
-                        <Fab style={{zIndex:10}} onClick={() => handleToHistory(movieCol.movieHot[indexbg]?.movieId)} color="primary" aria-label="add">
+                        <Fab style={{zIndex:10}} onClick={() => handleToFavorite(movieCol.movieHot[indexbg]?.movieId)} color="primary" aria-label="add">
                             <BookmarkAddIcon />
                         </Fab>
                     </Box>
@@ -209,6 +213,29 @@ function Home() {
                         <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
                     </svg>
                 </div>
+            </div>}
+            {movieCol.movieRcm.length>0 && <div className={cx('home-movie')}>
+                <h3>Phim Recommend</h3>
+                <ul>
+                    <div onClick={() => handleIndexht(0,"rcm")}>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                        </svg>
+                    </div>
+
+                    <div className={cx('home-movie-uld')} onClick={() => handleIndexht(1,"rcm")}>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </div>
+                    { movieCol.movieRcm.slice(indexrcm,indexrcm+6).map((item,index) =>{
+                            return <li key={index} onClick={() => handleDetailMovie(item.movieId)}>
+                                    <img src={item.urls} alt="" />
+                                    <span>{item.title}</span>
+                                </li>
+                    })
+                    }
+                </ul>
             </div>}
             { movieCol.movieClb.length>0 && <div className={cx('home-movie')}>
                 <h3>Phim chọn lọc</h3>
@@ -271,29 +298,6 @@ function Home() {
                         </svg>
                     </div>
                     { movieCol.movieNew.slice(indexnew,indexnew+6).map((item,index) =>{
-                            return <li key={index} onClick={() => handleDetailMovie(item.movieId)}>
-                                    <img src={item.urls} alt="" />
-                                    <span>{item.title}</span>
-                                </li>
-                    })
-                    }
-                </ul>
-            </div>}
-            {movieCol.movieRcm.length>0 && <div className={cx('home-movie')}>
-                <h3>Phim Recommend</h3>
-                <ul>
-                    <div onClick={() => handleIndexht(0,"rcm")}>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-                        </svg>
-                    </div>
-
-                    <div className={cx('home-movie-uld')} onClick={() => handleIndexht(1,"rcm")}>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                        </svg>
-                    </div>
-                    { movieCol.movieRcm.slice(indexrcm,indexrcm+6).map((item,index) =>{
                             return <li key={index} onClick={() => handleDetailMovie(item.movieId)}>
                                     <img src={item.urls} alt="" />
                                     <span>{item.title}</span>
