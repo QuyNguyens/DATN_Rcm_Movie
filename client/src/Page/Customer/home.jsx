@@ -12,7 +12,7 @@ import { notify } from "../../components/Layout/Component/Notify";
 import {useNavigate} from 'react-router-dom';
 const cx = classNames.bind(style);
 function Home() {
-    const {movieCol,setMovieCol,searchMovie,setSearchMovie,setOpenLogin} = useContext(MovieContext);
+    const {movieCol,setMovieCol,setSearchMovie,setOpenLogin} = useContext(MovieContext);
     const {user} = useContext(UserContext);
     const [indexbg,setIndexbg] = useState(0);
     const [indexht,setIndexht] = useState(0);
@@ -102,17 +102,17 @@ function Home() {
         }
     }
 
-    // useEffect(()=>{
-    //     const timer = setTimeout(() => {
-    //         if(indexbg == imagebg.length-1){
-    //             setIndexbg(0);
-    //         }else{
-    //             setIndexbg(pre => pre + 1); 
-    //         }
-    //     }, 2000);
+    useEffect(()=>{
+        const timer = setTimeout(() => {
+            if(indexbg == movieCol.length-1){
+                setIndexbg(0);
+            }else{
+                setIndexbg(pre => pre + 1); 
+            }
+        }, 3000);
 
-    //     return () => clearTimeout(timer); 
-    // });
+        return () => clearTimeout(timer); 
+    });
 
     // useEffect(()=>{
     //     console.log('??????????????????')
@@ -125,9 +125,10 @@ function Home() {
     useEffect(() =>{
         axios.get(import.meta.env.VITE_GET_MOVIE)
         .then( result =>{
+            console.log('movie: ',result.data);
             const newMovie = {...movieCol};
-            newMovie.movieNew = result.data.slice(0, 6);
-            newMovie.movieHot = result.data.slice(6, 12);
+            newMovie.movieNew = result.data.slice(0, 18);
+            newMovie.movieHot = result.data.slice(18, 36);
             setSearchMovie(result.data);
             setMovieCol(newMovie);
         })
@@ -144,7 +145,7 @@ function Home() {
     //     axios.post(import.meta.env.VITE_GET_RECOMMEND,listId)
     //     .then(result => {
     //         console.log('result: ',result.data)
-    //         setImageRender(result.data)})
+    //         })
     //     .catch(err => console.log('err2: ',err));
     // },[])
 
@@ -178,7 +179,7 @@ function Home() {
 
     return ( 
         <div className={cx("home-page")}>
-            { movieCol.movieHot.length>0 && <div className={cx('home-adv')} style={{ backgroundImage: `url(${movieCol.movieHot[indexbg]?.urls})` }}>
+            { movieCol.movieHot.length>0 && <div className={cx('home-adv')} style={{ backgroundImage: `url(${movieCol.movieHot[indexbg]?.poster})` }}>
                 <div onClick={() => handleIndexht(0,"a")}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
@@ -230,7 +231,7 @@ function Home() {
                     </div>
                     { movieCol.movieRcm.slice(indexrcm,indexrcm+6).map((item,index) =>{
                             return <li key={index} onClick={() => handleDetailMovie(item.movieId)}>
-                                    <img src={item.urls} alt="" />
+                                    <img src={item.poster} alt="" />
                                     <span>{item.title}</span>
                                 </li>
                     })
@@ -253,7 +254,7 @@ function Home() {
                     </div>
                     { movieCol.movieClb.slice(indexclb,indexclb+6).map((item,index) =>{
                             return <li key={index} onClick={() => handleDetailMovie(item.movieId)}>
-                                    <img src={item.urls} alt="" />
+                                    <img src={item.poster} alt="" />
                                     <span>{item.title}</span>
                                 </li>
                     })
@@ -276,7 +277,7 @@ function Home() {
                     </div>
                     { movieCol.movieHot.slice(indexht,indexht+6).map((item,index) =>{
                             return <li key={index} onClick={() => handleDetailMovie(item.movieId)}>
-                                    <img src={item.urls} alt="" />
+                                    <img src={item.poster} alt="" />
                                     <span>{item.title}</span>
                                 </li>
                     })
@@ -299,7 +300,7 @@ function Home() {
                     </div>
                     { movieCol.movieNew.slice(indexnew,indexnew+6).map((item,index) =>{
                             return <li key={index} onClick={() => handleDetailMovie(item.movieId)}>
-                                    <img src={item.urls} alt="" />
+                                    <img src={item.poster} alt="" />
                                     <span>{item.title}</span>
                                 </li>
                     })

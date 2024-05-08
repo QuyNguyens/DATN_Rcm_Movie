@@ -6,33 +6,33 @@ import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
 import Tooltip from '@mui/material/Tooltip';
 import Fab from '@mui/material/Fab';
 import Table from 'react-bootstrap/Table';
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
+import { UserContext } from "../../UserContext";
 
 const cx = classNames.bind(styles);
 function Statistic() {
     const [data,setData] = useState();
     const [totalValue,setTotalValue] = useState(0);
-
+    const {user} = useContext(UserContext);
     useEffect (() =>{
-        axios.get(import.meta.env.VITE_GET_STATISTIC+'1')
+        axios.get(import.meta.env.VITE_GET_STATISTIC+user.userId)
         .then(result => {
             let newdata = [];
-            [0,1,2,3,4].map((item, index) => (
+            [0,1].map((item, index) => (
                 newdata.push({
                     id: index,
-                    value: result.data.accessTime[index],
+                    value: (result.data.accessTime[index]/60).toFixed(2),
                     label: result.data.country[index]
                   })
             ));
-            let total = newdata.reduce((accumulator, currentValue) => accumulator + currentValue.value, 0);
-            total = total /60/60;
-            setTotalValue(total.toFixed(2));
+            const total = newdata.reduce((accumulator, currentValue) => accumulator + Number(currentValue.value), 0);
+            setTotalValue(total);
             setData(newdata);
         })
         .catch(err => console.log('errStatistic: ',err));
     },[]);
-    console.log('data: ',data);
+    console.log('data: ',totalValue);
     return ( <div className={cx('statistic')}>
                 {data && <div className={cx('statistic-box')}>
                     <h1>Thống kê</h1>
@@ -61,7 +61,7 @@ function Statistic() {
                                     {data.map((item,index) =>{
                                         return <tr key={index}>
                                                 <td>{item.label}</td>
-                                                <td>{(item.value/60).toFixed(2)}</td>
+                                                <td>{item.value}</td>
                                         </tr>
                                     })}
                                     
@@ -76,7 +76,7 @@ function Statistic() {
                             </Box>
                         </Box>
                         <div className={cx('statistic-gifticon')}>
-                        <Tooltip title={`Bạn đã tích được ${totalValue} giờ :<33`}>
+                        <Tooltip title={`Bạn đã tích được ${totalValue} phút :<33`}>
                             <Fab color="primary" aria-label="add">
                                 <CardGiftcardIcon color="pink" fontSize="large" />                       
                             </Fab>

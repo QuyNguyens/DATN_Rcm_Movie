@@ -26,20 +26,41 @@ function DetailMovie() {
     const videoRef = useRef(null);
     const [currentMinute, setCurrentMinute] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
-
     useEffect(() => {
         let intervalId;
     
         if (isPlaying) {
           intervalId = setInterval(() => {
+            console.log('curentMi: ',currentMinute)
             setCurrentMinute(prevMinute => prevMinute + 1);
           }, 1000);
         } else {
           clearInterval(intervalId);
         }
-    
+        
         return () => clearInterval(intervalId);
       }, [isPlaying]);
+
+      useEffect(() => {
+        window.addEventListener('beforeunload', () => {
+            if(currentMinute >= 20){
+                const data = {
+                    userId: user.userId,
+                    countryId: movieDisplay.countrys[0].countryId,
+                    accessTime: currentMinute,
+                    nameCountry: ""
+                }
+    
+                axios.post(import.meta.env.VITE_POST_CREATE_ACCESS_TIME,data)
+                .then(() => console.log('create time success: ',currentMinute))
+                .catch(err => console.log('create time failed: ',err));
+            }
+        });
+      
+        return () => {
+          window.removeEventListener('beforeunload');
+        };
+      }, []);
 
     // Get the movie 
     useEffect(()=>{
@@ -48,7 +69,10 @@ function DetailMovie() {
             behavior: "smooth"
           });
         axios.get(import.meta.env.VITE_GET_MOVIE_BY_ID+id)
-        .then(result => setMovieDisplay(result.data))
+        .then(result => {
+            console.log('movie: ',result.data)
+            setMovieDisplay(result.data)
+        })
         .catch(err => console.log("errDetail: ", err))
     },[id])
     
@@ -71,7 +95,7 @@ function DetailMovie() {
         });
         navigate(`/detail-movie/${movieId}`);
     }
-    
+    console.log('movieCol?.movieRcm: ',movieCol?.movieRcm)
     return ( 
         <div className={cx('detail-movie')}>
             <div className={cx('detail-movie-box')}>
@@ -81,10 +105,10 @@ function DetailMovie() {
                             onPlay={() => setIsPlaying(true)}
                             onPause={() => setIsPlaying(false)}
                             ref = {videoRef}
-                            url='https://imdb-video.media-imdb.com/vi1611315993/1434659607842-pgv4ql-1535575980897.mp4?Expires=1713360130&amp;Signature=pnfR7TAlzgvZlfibo8Hc190WuYQgPELzoJIJOaM8MYvrGFzmsgAlap~C5Cll7RqkkvkY3Vpx~JxkiMo9OA69zN-CeGlbPE~gP21GXePeIjRwTEudtvSgkXggADc4YphXFhriDlpSZNwbL0Z4wjOpY4t2mmEy44TmF1p2jEOYLV4kHOGO7YdysP0WSKXkWxA15tZc4Nt1skVvokIpjpmw-NPO5dKnf2xc5ujEufty~-4k-63srf~78w-ux9RaoWo4zUl-gPB836g0b~CCXaMxW3uW1MI2MRKof6yFIdw~MWQmvArdLNOhLJTMunUAIJ-mhb7anlV0XRa58A9sekN4Tg__&amp;Key-Pair-Id=APKAIFLZBVQZ24NQH3KA'
+                            url={movieDisplay?.urls}
                             controls={true}
-                            width='100%'
-                            height='100%'
+                            width='100%'  
+                            height='400px'
                         />
                     </div>
                     <h2>{movieDisplay?.title}</h2>
@@ -111,13 +135,13 @@ function DetailMovie() {
                         </div>
                     </div>
                     <ul>
-                        {movieCol?.movieNew.map((item,index) =>{
+                        {movieDisplay?.actors.map((item,index) =>{
                             return <li key={index} >
                                     <div>
-                                        <img src={item.urls} alt="" />
+                                        <img src="http://res.cloudinary.com/dqx0ugb4i/image/upload/v1710745154/olympic_flag.jpg" alt="" />
                                     </div>
-                                    <b>{item.title}</b>
-                                    <span>Diễn viên chính</span>
+                                    <b>{item.nameActor}</b>
+                                    <span>{item.role ? item.role : 'mass'}</span>
                                     </li>
                         })}
                     </ul>
@@ -127,11 +151,11 @@ function DetailMovie() {
                             {movieCol?.movieRcm.map((item,index) =>{
                                 return <li key={index} onClick={() => handleTransferPage(item.movieId)}>
                                     <div>
-                                        <img src={item.urls} alt="" />
+                                        <img src={item.poster} alt="" />
                                     </div>
                                     <b>{item.title}</b>
                                     <Box className={cx('div-icon')} sx={{ '& > :not(style)': { m: 1 }, display:'flex' }}>
-                                        <Fab onClick={() => setIdMovie(item.movieId)} color="success" aria-label="add">
+                                        <Fab color="success" aria-label="add">
                                             <PlayCircleIcon />
                                         </Fab>
 
@@ -150,7 +174,7 @@ function DetailMovie() {
                         <p>Diễn viên: 
                             {
                                 movieDisplay?.actors.map((item,index) =>{
-                                    return <span key={index}>{item} ,</span>
+                                    return <span key={index}>{item.nameActor} ,</span>
                                 })
                             }
                         </p>
@@ -164,7 +188,7 @@ function DetailMovie() {
                         <p>Quốc gia: 
                         {
                                 movieDisplay?.countrys.map((item,index) =>{
-                                    return <span key={index}>{item} ,</span>
+                                    return <span key={index}>{item.nameContry} ,</span>
                                 })
                             }
                         </p>
@@ -187,9 +211,9 @@ function DetailMovie() {
                         <h3>Phim Hot</h3>
                         <ul>
                             {movieCol?.movieHot.map((item,index) =>{
-                                return <li key={index} onClick={() => handleTransferPage(item.movieId)}>
+                                return index <6 && <li key={index} onClick={() => handleTransferPage(item.movieId)}>
                                     <div>
-                                        <img src={item.urls} alt="" />
+                                        <img src={item.poster} alt="" />
                                     </div>
                                     <p>
                                         <b>{item.title}</b><br />

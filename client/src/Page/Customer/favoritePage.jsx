@@ -66,7 +66,7 @@ function FavoritePage() {
 
                 </p>
               </div>
-              <img src={item.urls} alt="" onClick={() => handleDetailMovie(item.movieId)} />      
+              <img src={item.poster} alt="" onClick={() => handleDetailMovie(item.movieId)} />      
               <span>{item.title}</span>
               <div className={cx('history-icon-last')}>
               <Tooltip title="Watch" onClick={() => handleDetailMovie(item.movieId)}>

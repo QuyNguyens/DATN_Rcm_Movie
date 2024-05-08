@@ -3,7 +3,12 @@ export const UserContext = createContext({});
 // eslint-disable-next-line react/prop-types
 function UserContextProvider({children}) {    
     const [user,setUser] = useState(null);
-    return ( <UserContext.Provider value={{user,setUser}}>
+    const [listUsers,setListUsers] = useState(null);
+    const [amountUser,setAmountUser] = useState();
+    const [amountMovie,setAmountMovie] = useState();
+    const [userSubs,setUserSubs] = useState();
+    const [alert,setAlert] = useState();
+    return ( <UserContext.Provider value={{user,setUser,listUsers,setListUsers,amountUser,setAmountUser,amountMovie,setAmountMovie,userSubs,setUserSubs,alert,setAlert}}>
         {children}
     </UserContext.Provider> );
 }

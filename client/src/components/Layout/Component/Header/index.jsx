@@ -85,7 +85,6 @@ function Header() {
     const handleLogout = () =>{
         setUser(null);
     }
-    console.log('user: ',user);
     //get user
     const handleLogin = () =>{
         axios.post(import.meta.env.VITE_POST_SIGNIN,userLogin.current)
@@ -107,7 +106,7 @@ function Header() {
             });
             setBuyVip(buyVIP);
             let listId = [];
-            for(let i=12;i<=17;i++){
+            for(let i=12;i<=30;i++){
                 listId.push(i.toString())
             }
             axios.post(import.meta.env.VITE_GET_RECOMMEND,listId)
@@ -168,22 +167,30 @@ function Header() {
     //get by country
     const handleColabrate = (colabrate,check) =>{
         if(check == 0){
-            console.log('abc: ', (import.meta.env.VITE_GET_BY_COUNTRY+colabrate))
             axios.get(import.meta.env.VITE_GET_BY_COUNTRY+colabrate)
             .then(result =>{
                 var newMovieCol = {...movieCol};
                 newMovieCol.movieClb = result.data;
                 setMovieCol(newMovieCol);
+                window.scroll({
+                    top: 900, 
+                    behavior: 'smooth' 
+                });
             })
             .catch(err => console.log(err))
         }else{
             axios.get(import.meta.env.VITE_GET_BY_GENRE+colabrate)
-            .then(result => setMovieCol(result.data))
+            .then(result => {
+                setMovieCol(result.data)
+                window.scroll({
+                    top: 900, 
+                    behavior: 'smooth' 
+                });
+            })
             .catch(err => console.log(err))
         }
     }
     const handleDetailMovie =(index) =>{
-        console.log('index: ',index);
         if(user == null){
             setSearch('');
             setOpenLogin(true);
@@ -538,13 +545,13 @@ function Header() {
                                             </li>
                                             <li>
                                                 <IconButton aria-label="two devices">
-                                                    <FontDownloadOffIcon/>
+                                                    <SecurityUpdateIcon/>
                                                 </IconButton>
                                                 <span>Tải xuống nội dung thành viên</span>
                                             </li>
                                             <li>
                                                 <IconButton aria-label="two devices">
-                                                    <SecurityUpdateIcon/>
+                                                    <FontDownloadOffIcon/>
                                                 </IconButton>
                                                 <span>VIP được chặn quảng cáo</span>
                                             </li>

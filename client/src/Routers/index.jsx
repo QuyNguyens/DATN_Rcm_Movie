@@ -10,6 +10,7 @@ import StatisticAdm from "../Page/Admin/statistic";
 import MovieAdm from "../Page/Admin/Movie";
 import UserAdm from "../Page/Admin/UserAdm";
 import DetailMovie from "../Page/Customer/detailMovie";
+import AlertAdm from "../Page/Admin/AlertAdm";
 
 const publicRoute = [
     {path: '/', component: Home },
@@ -22,6 +23,8 @@ const publicRoute = [
     {path: '/adm/statistic',component: StatisticAdm,layout: AdminLayout},
     {path: '/adm/movie',component: MovieAdm,layout: AdminLayout},
     {path: '/adm/user',component: UserAdm,layout: AdminLayout},
+    {path: '/adm/alert',component: AlertAdm,layout: AdminLayout},
+
 ]
 
 export {publicRoute};
