@@ -33,8 +33,8 @@ function Sidebar({openSidebarToggle, OpenSidebar}) {
                 <li onClick={() => handleNavigate('/adm/user')} className='sidebar-list-item'>
                     <BsPeopleFill className='icon'/> Customers
                 </li>
-                <li onClick={() => handleNavigate('/adm/rating')} className='sidebar-list-item'>
-                    <BsListCheck className='icon'/> Rating
+                <li onClick={() => handleNavigate('/adm/vote-count')} className='sidebar-list-item'>
+                    <BsListCheck className='icon'/> Vote-Count
                 </li>
                 <li onClick={() => handleNavigate('/adm/alert')} className='sidebar-list-item'>
                     <BsMenuButtonWideFill className='icon'/> Alert

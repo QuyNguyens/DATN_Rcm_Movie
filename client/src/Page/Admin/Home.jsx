@@ -15,8 +15,9 @@ import { MovieContext } from '../../MovieContext';
 function HomeAdmin() {
 
     const [countCountry,setCountCountry] = useState();
-    const {setListUsers,amountUser,setAmountUser,amountMovie,setAmountMovie,setUserSubs,alert,setAlert} = useContext(UserContext);
-    const {setMovieAdmin} = useContext(MovieContext);
+    const {setListUsers,amountUser,setAmountUser,amountMovie,
+        setAmountMovie,setUserSubs,alert,setAlert} = useContext(UserContext);
+    const {setMovieAdmin,movieVoteCount,setMovieVoteCount} = useContext(MovieContext);
 
     const navigate = useNavigate();
     useEffect(() =>{
@@ -41,6 +42,7 @@ function HomeAdmin() {
 
       axios.get(import.meta.env.VITE_GET_MOVIE_ADMIN)
       .then(result => {
+        console.log('movie: ', result)
         setMovieAdmin(result.data.listMovie);
         setAmountMovie(result.data.amount);
        })
@@ -50,6 +52,15 @@ function HomeAdmin() {
       .then(result => {
         setUserSubs(result.data.listUserSubs);
         setAlert(result.data.amount);
+       })
+       .catch(err => console.log('err get movie: ',err));
+
+       axios.get(import.meta.env.VITE_GET_MOVIE_VOTE_COUNT)
+      .then(result => {
+            const updatedData = result.data.map(movie => {
+              return { ...movie, voteCount: (movie.voteCount / 1000).toFixed(2) };
+            });
+            setMovieVoteCount(updatedData);
        })
        .catch(err => console.log('err get movie: ',err));
 
@@ -68,6 +79,7 @@ function HomeAdmin() {
             break;
     }
   }
+  console.log('countCountry: ',movieVoteCount)
   return (
     <main className='main-container'>
         <div className='main-title'>

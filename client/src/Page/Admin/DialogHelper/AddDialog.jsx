@@ -9,18 +9,21 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Fragment } from "react";
+import { Fragment, useContext } from "react";
 import Box from '@mui/material/Box';
 import { useState } from 'react';
 import axios from 'axios';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { notify } from "../../../components/Layout/Component/Notify";
-
+import { MovieContext } from "../../../MovieContext";
+import { UserContext } from "../../../UserContext";
 const cx = classNames.bind(styles);
 
 // eslint-disable-next-line react/prop-types
 function AddDialog({open,setOpen,handleClickOpen,handleClose,pathFilePoster,setPathFilePoster}) {
 
+    const {movieAdmin,setMovieAdmin} = useContext(MovieContext);
+    const {setAmountMovie} = useContext(UserContext);
     const [movie,setMovie] = useState({
         title: '',
         descriptions: '',
@@ -30,6 +33,7 @@ function AddDialog({open,setOpen,handleClickOpen,handleClose,pathFilePoster,setP
       });
     
     const handleAddMovie = (e,type) =>{
+        console.log('co vao day');
         switch(type){
             case 'title':
                 setMovie({
@@ -57,8 +61,7 @@ function AddDialog({open,setOpen,handleClickOpen,handleClose,pathFilePoster,setP
                 break;
         }
     }
-    const handleFileChange = (event,type) => {
-        console.log('type: ',type)
+    const handleFileChange = (event) => {
         const file = event.target.files[0];
         const formData = new FormData();
         formData.append('formfile', file);
@@ -69,18 +72,20 @@ function AddDialog({open,setOpen,handleClickOpen,handleClose,pathFilePoster,setP
         })
         .then(result => {
             setPathFilePoster(result.data.result);
-            setMovie({
-                ...movie,
-                Poster: result.data.result
-            })
         })
         .catch(err => console.log('upload failed: ',err));
 
     };
-
     const handleClickAddMovie = () => {
-        axios.post(import.meta.env.VITE_POST_CREATE_MOVIE,movie)
+        const updateMovie = {
+            ...movie,
+            poster: import.meta.env.VITE_GET_IMAGE + pathFilePoster
+        }
+        axios.post(import.meta.env.VITE_POST_CREATE_MOVIE,updateMovie)
         .then(() => {
+            setAmountMovie(pre => pre + 1);
+            console.log('moviecre: ', updateMovie)
+            setMovieAdmin([updateMovie,...movieAdmin])
             setOpen(false);
             notify('The movie created success');
         })

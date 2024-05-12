@@ -106,7 +106,7 @@ function Header() {
             });
             setBuyVip(buyVIP);
             let listId = [];
-            for(let i=12;i<=30;i++){
+            for(let i=12;i<=31;i++){
                 listId.push(i.toString())
             }
             axios.post(import.meta.env.VITE_GET_RECOMMEND,listId)

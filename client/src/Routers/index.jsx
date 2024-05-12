@@ -11,6 +11,7 @@ import MovieAdm from "../Page/Admin/Movie";
 import UserAdm from "../Page/Admin/UserAdm";
 import DetailMovie from "../Page/Customer/detailMovie";
 import AlertAdm from "../Page/Admin/AlertAdm";
+import VoteCountMovie from "../Page/Admin/VoteCountMovie";
 
 const publicRoute = [
     {path: '/', component: Home },
@@ -24,6 +25,8 @@ const publicRoute = [
     {path: '/adm/movie',component: MovieAdm,layout: AdminLayout},
     {path: '/adm/user',component: UserAdm,layout: AdminLayout},
     {path: '/adm/alert',component: AlertAdm,layout: AdminLayout},
+    {path: '/adm/vote-count',component: VoteCountMovie,layout: AdminLayout},
+
 
 ]
 
