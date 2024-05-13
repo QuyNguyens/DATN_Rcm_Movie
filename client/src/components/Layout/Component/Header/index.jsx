@@ -132,7 +132,7 @@ function Header() {
     const handleSignUp = () =>{
         axios.post(import.meta.env.VITE_POST_SIGNUP,userSignUp.current)
         .then(() => {
-            notify('Login success');
+            notify('The account has created successful');
             setIsEmailErr(false);})
         .catch(() => setIsEmailErr(true));
     }
@@ -247,6 +247,22 @@ function Header() {
             });
         }
     }
+
+    const getAvatar = (avatar) =>{
+        if(user.avatar){
+            const check = avatar.split(':')[0];
+            switch(check){
+                case 'http':
+                    return 1;
+                case 'https':
+                    return 2;
+            }
+        }else{
+            return 0;
+        }
+    }
+
+    console.log('user: ', user)
     return ( <div className={cx('header')}>
                 <div className={cx('header-left')}>
                     <Link to="/">
@@ -313,12 +329,13 @@ function Header() {
                         </p>
                     </div>
                     {user ?
-                    <Box sx={{display:'flex',alignItems:'center'}}><span style={{marginRight:'10px'}}>{user.userName}</span> 
+                    <Box sx={{display:'flex',alignItems:'center'}}><span style={{marginRight:'10px'}}>{user.userName==null?user.email.split('@')[0] : user.userName}</span> 
                     <Box onMouseEnter={() => setIsAvatar(true)} onMouseLeave={() => setIsAvatar(false)} sx={{position:'relative'}}>
                         {
-                           user&& user.avatar?
+                           user&& getAvatar(user.avatar) == 2?
                             <Avatar alt="Remy Sharp" src={import.meta.env.VITE_GET_IMAGE + user.avatar}/>:
-                            <span style={{padding:'10px', borderRadius:'50%'}} className="avatar text-bg-primary">{user.email.split("@")[0].charAt(0).toUpperCase()}</span>
+                            (getAvatar(user.avatar) == 0 ? <span style={{padding:'10px 13px', borderRadius:'50%'}} className="avatar text-bg-primary">{user.email[0].toUpperCase()}</span>
+                        : <Avatar alt="Remy Sharp" src={user.avatar}/>)
                         }
                         {
                             isAvatar && <Box sx={{backgroundColor: 'white !important',zIndex:'100',width:'170px', display:'flex',flexDirection:'column', padding:'10px',borderRadius:'10px', position:'absolute',bottom:'-205px',left:'-60px'}}>
@@ -378,7 +395,6 @@ function Header() {
                                  {isEmailErrLogin && <span style={{color:'red',fontSize:'14px'}}>The email is wrong!!!. Please try again.</span>}
                                 <TextField
                                 onChange={(e) => handleSetLogin(e,1)}
-                                autoFocus
                                 required
                                 margin="dense"
                                 name="password"

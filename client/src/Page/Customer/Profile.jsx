@@ -77,7 +77,7 @@ function Profile() {
             setPathFile(result.data.result);
             setUserProfile({
                 ...userProfile,
-                avatar: result.data.result
+                avatar: import.meta.env.VITE_GET_IMAGE + result.data.result
             })
         })
         .catch(err => console.log('upload failed: ',err));
