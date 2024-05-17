@@ -1,7 +1,7 @@
 import Profile from "../Page/Customer/Profile";
 import FavoritePage from "../Page/Customer/favoritePage";
 import HistoryPage from "../Page/Customer/hisrotyPage";
-import Home from "../Page/Customer/home";
+import Home from "../Page/Customer/Home/home";
 import Statistic from "../Page/Customer/statistic";
 import { HistoryLayout } from "../components/Layout";
 import HomeAdmin from "../Page/Admin/Home";

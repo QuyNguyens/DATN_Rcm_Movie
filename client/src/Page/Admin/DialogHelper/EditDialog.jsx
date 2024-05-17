@@ -14,19 +14,34 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Box from '@mui/material/Box';
-import { useState } from 'react';
+import MenuItem from '@mui/material/MenuItem';
+import FormHelperText from '@mui/material/FormHelperText';
+import Select from '@mui/material/Select';
+import InputLabel from '@mui/material/InputLabel';
+import { useContext, useState } from 'react';
 import axios from 'axios';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { notify } from "../../../components/Layout/Component/Notify";
-const cx = classNames.bind(styles);
+import { MovieContext } from "../../../MovieContext";
 
+const cx = classNames.bind(styles);
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+    PaperProps: {
+        style: {
+        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+        width: 250,
+        },
+    },
+};
 // eslint-disable-next-line react/prop-types
-function EditDialog({openEdit,setOpenEdit,handleClose,data,movie1,setMovie1}) {
+function EditDialog({openEdit,setOpenEdit,handleClose,data,movie1,setMovie1,pathFileUrls, setPathFileUrls}) {
+    
     const [valueType, setValueType] = useState(data[2] == 0 ?'normal': (data[2] == 1?'new':'hot'));
     const [movie,setMovie] = useState({
         movieId: data[0],
         title: data[1],
-        descriptions: '',
         isType: data[2],
         urls: '',
         originalLanguage: data[3],
@@ -34,6 +49,9 @@ function EditDialog({openEdit,setOpenEdit,handleClose,data,movie1,setMovie1}) {
     });
     console.log('movie: ',movie)
     const [isPoster,setIsPoster] = useState(false);
+    const {countryCode} = useContext(MovieContext);
+    const [language, setLanguage] = useState();
+
     const handleChangeType = (event) => {
         setValueType(event.target.value);
         setMovie({
@@ -50,12 +68,6 @@ function EditDialog({openEdit,setOpenEdit,handleClose,data,movie1,setMovie1}) {
                     title: e.target.value
                 });
                 break;
-            case 'desc':
-                setMovie({
-                    ...movie,
-                    descriptions: e.target.value
-                });
-                break;
             case 'url':
                 setMovie({
                     ...movie,
@@ -63,6 +75,7 @@ function EditDialog({openEdit,setOpenEdit,handleClose,data,movie1,setMovie1}) {
                 });
                 break;
             case 'language':
+                setLanguage(e.target.value);
                 setMovie({
                     ...movie,
                     originalLanguage: e.target.value
@@ -110,22 +123,26 @@ function EditDialog({openEdit,setOpenEdit,handleClose,data,movie1,setMovie1}) {
         })
         .catch(err => console.log('add movie err: ',err));
     }
+
+    const handleVideoChange = (event) => {
+        const file = event.target.files[0];
+        const pathFile = "D:/MovieVideo/" + file.name ;
+        setPathFileUrls(pathFile);
+ 
+    };
+    console.log('movie: ', movie1)
     return (
                 <Dialog
                     open={openEdit}
                     onClose={() => handleClose('edit')}
                     maxWidth= 'md'
                 >
-                    <DialogTitle>Add Movie</DialogTitle>
+                    <DialogTitle style={{textAlign:"center", fontSize:"25px"}}>Edit Movie</DialogTitle>
                     <DialogContent style={{width:'550px'}}>
                             <form >
                                 <Box sx={{margin:'10px 0'}}>
                                     <span>Title:</span><br />
                                     <TextField style={{width:'100%'}} onChange={e => handleAddMovie(e,'title')} id="filled-basic" value={movie?.title!=null ? movie?.title: ''} variant="outlined" />
-                                </Box>
-                                <Box sx={{margin:'10px 0'}}>
-                                    <span>Descriptions:</span><br />
-                                    <TextField style={{width:'100%'}} onChange={e => handleAddMovie(e,'desc')} id="filled-basic" value={movie?.descriptions!=null ? movie?.descriptions: ''} variant="outlined" />
                                 </Box>
                                 <FormControl>
                                     <FormLabel id="demo-row-radio-buttons-group-label">Type</FormLabel>
@@ -142,12 +159,39 @@ function EditDialog({openEdit,setOpenEdit,handleClose,data,movie1,setMovie1}) {
                                     </RadioGroup>
                                 </FormControl>
                                 <Box sx={{margin:'10px 0'}}>
-                                    <span>Url:</span><br />
-                                    <TextField style={{width:'100%'}} onChange={e => handleAddMovie(e,'url')} id="filled-basic" value={movie?.urls!=null ? movie?.urls: ''} variant="outlined" />
+                                    <span>Urls</span>
+                                    <Box sx={{height:'100px', border:'0.2px solid var(--borderLeftbar)', display:'flex', alignItems:'center', justifyContent:'center'}}>
+                                        <input type="file" id="fileInput"
+                                            accept=".mp4,.mov,.avi"
+                                            style={{ display: 'none' }} 
+                                            onChange={(event) => handleVideoChange(event)}/>
+                                        {pathFileUrls && <span>{pathFileUrls}</span>}
+                                                <Box sx={{ display: 'flex', alignItems: 'center',marginLeft:'15px' }}>
+                                                    <label htmlFor="fileInput" style={{ cursor: 'pointer' }}>
+                                                    <span style={{ border: '1px solid #ccc', padding: '5px 10px', borderRadius: '4px' }}>
+                                                        Upload Video
+                                                    </span>
+                                                    </label>
+                                                </Box>
+                                            </Box>
                                 </Box>
                                 <Box sx={{margin:'10px 0'}}>
-                                    <span>Original_language:</span><br />
-                                    <TextField style={{width:'100%'}} onChange={e => handleAddMovie(e,'language')} id="filled-basic" value={movie?.originalLanguage!=null ? movie?.originalLanguage: ''} variant="outlined" />
+                                <span>Original_language:</span><br />
+                                    <FormControl required sx={{ m: 1, minWidth: 200 }}>
+                                        <InputLabel id="demo-simple-select-required-label">Original_language</InputLabel>
+                                        <Select
+                                            labelId="demo-simple-select-required-label"
+                                            id="demo-simple-select-required"
+                                            value={language}
+                                            label="Original_language *"
+                                            onChange={(e) => handleAddMovie(e,'language')}
+                                        >
+                                        {countryCode.map((item,index) =>{
+                                            return <MenuItem key={index} value={item.countryId}>{item.nameContry}</MenuItem>
+                                        })}
+                                        </Select>
+                                        <FormHelperText>Required</FormHelperText>
+                                    </FormControl>
                                 </Box>
                                 <Box sx={{margin:'10px 0'}}>
                                     <span>Poster</span>

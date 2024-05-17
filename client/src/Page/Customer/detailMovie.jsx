@@ -75,8 +75,9 @@ function DetailMovie() {
         })
         .catch(err => console.log("errDetail: ", err))
     },[id])
-    
+
     const handleRating = (movieId,newValue) =>{
+        console.log('rating: ',movieId);
         setvaluerating(newValue);
         const dataRating = {
                 userId: user.userId,
@@ -84,7 +85,16 @@ function DetailMovie() {
                 rating: newValue
         }
         axios.post(import.meta.env.VITE_POST_RATING,dataRating)
-        .then(result => console.log('you are rated the movie: ', result))
+        .then(result => {
+            if(result.data.responseCode != 202){
+                const dataSender = {
+                    data:[user.userId,movieId,newValue]
+                }
+                axios.post(import.meta.env.VITE_POST_RATING_MODEL,dataSender)
+                .then(data => console.log('you are rating the movie: ',data.data))
+                .catch(err => console.log('err rating: ',err));
+            }
+        })
         .catch(err => console.log('failed to rating: ',err));
     }
 

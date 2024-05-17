@@ -17,7 +17,7 @@ function HomeAdmin() {
     const [countCountry,setCountCountry] = useState();
     const {setListUsers,amountUser,setAmountUser,amountMovie,
         setAmountMovie,setUserSubs,alert,setAlert} = useContext(UserContext);
-    const {setMovieAdmin,movieVoteCount,setMovieVoteCount} = useContext(MovieContext);
+    const {setMovieAdmin,setMovieVoteCount,setCountryCode} = useContext(MovieContext);
 
     const navigate = useNavigate();
     useEffect(() =>{
@@ -42,7 +42,6 @@ function HomeAdmin() {
 
       axios.get(import.meta.env.VITE_GET_MOVIE_ADMIN)
       .then(result => {
-        console.log('movie: ', result)
         setMovieAdmin(result.data.listMovie);
         setAmountMovie(result.data.amount);
        })
@@ -64,6 +63,11 @@ function HomeAdmin() {
        })
        .catch(err => console.log('err get movie: ',err));
 
+       axios.get(import.meta.env.VITE_GET_COUNTRY_CODE)
+       .then(result => {
+         setCountryCode(result.data);
+        })
+        .catch(err => console.log('err get movie: ',err));
     },[])
   
   const handleClickNavigate = (name) =>{
@@ -79,7 +83,6 @@ function HomeAdmin() {
             break;
     }
   }
-  console.log('countCountry: ',movieVoteCount)
   return (
     <main className='main-container'>
         <div className='main-title'>

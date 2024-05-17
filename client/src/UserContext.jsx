@@ -8,7 +8,11 @@ function UserContextProvider({children}) {
     const [amountMovie,setAmountMovie] = useState();
     const [userSubs,setUserSubs] = useState();
     const [alert,setAlert] = useState();
-    return ( <UserContext.Provider value={{user,setUser,listUsers,setListUsers,amountUser,setAmountUser,amountMovie,setAmountMovie,userSubs,setUserSubs,alert,setAlert}}>
+    const [buyVip,setBuyVip] = useState();
+
+    return ( <UserContext.Provider value={{user,setUser,listUsers,setListUsers
+                ,amountUser,setAmountUser,amountMovie,setAmountMovie,userSubs,
+                setUserSubs,alert,setAlert,buyVip,setBuyVip}}>
         {children}
     </UserContext.Provider> );
 }

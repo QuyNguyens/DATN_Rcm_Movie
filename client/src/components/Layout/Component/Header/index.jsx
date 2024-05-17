@@ -1,45 +1,27 @@
 import classNames from 'classnames/bind';
 import style from './Header.module.scss';
-import { useEffect, useState, useRef, useContext, Fragment } from 'react';
+import { useEffect, useState, useRef, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import LogoutIcon from '@mui/icons-material/Logout';
-import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import Tooltip from '@mui/material/Tooltip';
 import Avatar from '@mui/material/Avatar';
-import CastleIcon from '@mui/icons-material/Castle';
-import TextField from '@mui/material/TextField';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import GoogleIcon from '@mui/icons-material/Google';
-import FacebookIcon from '@mui/icons-material/Facebook';
 import { UserContext } from "../../../../UserContext";
 import { MovieContext } from "../../../../MovieContext";
-import { notify } from '../Notify';
+import { notify,notifyErr } from '../Notify';
 import { ToastContainer, toast } from 'react-toastify';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
-import OfflineShareIcon from '@mui/icons-material/OfflineShare';
-import HdrOnIcon from '@mui/icons-material/HdrOn';
-import FontDownloadOffIcon from '@mui/icons-material/FontDownloadOff';
-import ConnectedTvIcon from '@mui/icons-material/ConnectedTv';
-import SecurityUpdateIcon from '@mui/icons-material/SecurityUpdate';
-import LocationCityIcon from '@mui/icons-material/LocationCity';
-import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
-import FlareIcon from '@mui/icons-material/Flare';
+import iconWebTeam from '../../../../assets/icon-web-team.jpg';
 import 'react-toastify/dist/ReactToastify.css';
+import ProfileDown from './ProfileDown';
+import Login from './DialogHelper/Login';
+import Vip from './DialogHelper/Vip';
+import Filter from './DialogHelper/Filter';
 
 const cx = classNames.bind(style);
 
 function Header() {
-    const {user,setUser} = useContext(UserContext);
+    const {user,setUser,buyVip,setBuyVip} = useContext(UserContext);
     const {movieCol,setMovieCol,searchMovie,setSearchMovie,isOpenVip,setIsOpenVip,openLogin, setOpenLogin} = useContext(MovieContext);
     const [openSignUp, setOpenSignUp] = useState(false);
     const [isCountry,setIsCountry] = useState(false);
@@ -51,7 +33,6 @@ function Header() {
     const [isEmailErrLogin,setIsEmailErrLogin] = useState(false);
     const [isPasswordErrLogin,setIsPasswordErrLogin] = useState(false);
     const [search, setSearch] = useState('');
-    const [buyVip,setBuyVip] = useState();
     const navigate = useNavigate();
     const userLogin = useRef({
         Email: '',
@@ -88,7 +69,7 @@ function Header() {
     //get user
     const handleLogin = () =>{
         axios.post(import.meta.env.VITE_POST_SIGNIN,userLogin.current)
-        .then(data => {
+        .then(async data => {
             notify('Login success');
             setUser(data.data); 
 
@@ -105,10 +86,12 @@ function Header() {
                 item.isType = matchedSub ? matchedSub.status : 0;
             });
             setBuyVip(buyVIP);
+
             let listId = [];
-            for(let i=12;i<=31;i++){
-                listId.push(i.toString())
-            }
+            const result = await axios.get(import.meta.env.VITE_GET_RECOMMEND_LIST_MOVIE_ID + data.data.userId);
+            console.log('data: ', result.data);
+            listId = result.data.map(id => id + 1);
+
             axios.post(import.meta.env.VITE_GET_RECOMMEND,listId)
             .then(result => {
                 const newMovie = {...movieCol};
@@ -130,11 +113,15 @@ function Header() {
 
     //create user
     const handleSignUp = () =>{
-        axios.post(import.meta.env.VITE_POST_SIGNUP,userSignUp.current)
-        .then(() => {
-            notify('The account has created successful');
-            setIsEmailErr(false);})
-        .catch(() => setIsEmailErr(true));
+        if(userSignUp.current.Email == '' || userSignUp.current.Password ==''){
+            notifyErr("Email or Password is empty!!!")
+        }else{
+            axios.post(import.meta.env.VITE_POST_SIGNUP,userSignUp.current)
+            .then(() => {
+                notify('The account has created successful');
+                setIsEmailErr(false);})
+            .catch(() => setIsEmailErr(true));
+        }
     }
     //handle Close the dialog login
     function handleClose() {
@@ -209,24 +196,6 @@ function Header() {
             navigate('/history')
         }
     }
-
-    const handleBuyVip = (status, idBuyVip) =>{
-        const data = {
-            userId: user.userId,
-            status: status,
-            isType: idBuyVip
-        }
-        if(status == 0){
-            axios.put(import.meta.env.VITE_PUT_UPDATE_BUY_VIP,data)
-            .then(() => {
-                let newData = [...buyVip];
-                newData.find(item => item.buyVipId === idBuyVip).isType = 1
-                console.log('newData: ', newData);
-                setBuyVip(newData);
-            })
-            .catch(err => console.log('err: ',err));
-        }
-    }
     
     const handleDisplayRecommand = () =>{
         if(user == null){
@@ -261,46 +230,16 @@ function Header() {
             return 0;
         }
     }
-
-    console.log('user: ', user)
     return ( <div className={cx('header')}>
                 <div className={cx('header-left')}>
                     <Link to="/">
-                        <svg width="82px" height="26px" viewBox="0 0 82 26" version="1.1" xmlns="http://www.w3.org/2000/svg"><title>画板</title><g id="画板" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd"><g id="logo-顶导"><rect id="矩形" fill="#D8D8D8" opacity="0" x="0" y="0" width="82" height="26"></rect><path d="M40.730699,25.553536 C40.730699,25.6709712 40.8335468,25.7660629 40.9604205,25.7660629 L46.4314792,25.7660629 C46.5583529,25.7660629 46.6612007,25.6709712 46.6612007,25.553536 L46.6612007,0.922970695 C46.6612007,0.805535552 46.5583529,0.710337902 46.4314792,0.710337902 L40.9604205,0.710337902 C40.8335468,0.710337902 40.730699,0.805535552 40.730699,0.922970695 L40.730699,25.553536 Z M0.508790868,25.553536 C0.508790868,25.6709712 0.611638638,25.7660629 0.738512321,25.7660629 L6.20957109,25.7660629 C6.33644478,25.7660629 6.43929255,25.6709712 6.43929255,25.553536 L6.43929255,10.0477555 C6.43929255,9.93032033 6.33644478,9.83522857 6.20957109,9.83522857 L0.738512321,9.83522857 C0.611638638,9.83522857 0.508790868,9.93032033 0.508790868,10.0477555 L0.508790868,25.553536 Z M24.3947744,20.3676149 C20.4314471,21.0880038 16.6121699,18.3688878 15.8809602,14.3064155 C15.1497505,10.2438372 17.7792181,6.35269945 21.7425454,5.63231056 C25.7058728,4.91202756 29.52515,7.63103764 30.2563597,11.6936159 C30.9875694,15.7560882 28.3581018,19.647226 24.3947744,20.3676149 Z M37.1201838,21.5332831 L34.4135803,19.3501966 C34.3577306,19.3051922 34.3213756,19.2433508 34.3074659,19.176956 C34.2934508,19.1104553 34.3017755,19.0394012 34.3353908,18.9758655 C35.6298395,16.5317532 36.1463967,13.6516801 35.6185642,10.7189783 C34.3684791,3.7734679 27.7362732,-0.835729119 20.8051133,0.424077827 C13.8739534,1.68377888 9.26867052,8.33554261 10.5187557,15.281053 C11.7688408,22.2264576 18.4010467,26.8356546 25.3322066,25.5759535 C27.259127,25.2256601 29.0057477,24.458043 30.4972511,23.3837603 C30.6074752,23.3044465 30.7560565,23.3068821 30.8617495,23.3921258 L33.7649861,25.7338397 C33.863408,25.8132594 34.0091441,25.7951517 34.0903897,25.6933887 L37.15127,21.8613391 C37.2325155,21.7595761 37.2186057,21.6127027 37.1201838,21.5332831 Z M81.7702785,0.710390848 L76.2992198,0.710390848 C76.1723461,0.710390848 76.0694983,0.805588498 76.0694983,0.922917749 L76.0694983,25.553589 C76.0694983,25.6709182 76.1723461,25.7661159 76.2992198,25.7661159 L81.7702785,25.7661159 C81.8971522,25.7661159 82,25.6709182 82,25.553589 L82,0.922917749 C82,0.805588498 81.8971522,0.710390848 81.7702785,0.710390848 Z M3.47406278,0.219238745 C1.55536177,0.219238745 0,1.78221685 0,3.71031342 C0,5.63840998 1.55536177,7.20138809 3.47406278,7.20138809 C5.3927638,7.20138809 6.94812556,5.63840998 6.94812556,3.71031342 C6.94812556,1.78221685 5.3927638,0.219238745 3.47406278,0.219238745 Z M73.1731639,0.710390848 L67.3432971,0.710390848 C67.242873,0.710390848 67.1504575,0.761642976 67.1032487,0.843815808 L61.6862482,10.5227377 C61.6862482,10.5227377 61.656639,10.5774628 61.6129513,10.5921373 L61.5934113,10.5956979 C61.5528675,10.594586 61.5209779,10.5541019 61.507567,10.5339293 L61.5006797,10.5227377 L61.5006797,10.5227377 L56.0836792,0.843815808 C56.0364704,0.761642976 55.9440549,0.710390848 55.8435255,0.710390848 L50.013764,0.710390848 C49.8578063,0.710390848 49.6786657,0.871877407 49.8068039,1.11288948 L58.4715178,15.7632678 C58.5544494,15.9047406 58.5981807,16.0659095 58.5981807,16.2301492 L58.5981807,25.51102 C58.5981807,25.6518575 58.7117769,25.7661159 58.8520335,25.7661159 L64.3348945,25.7661159 C64.4750456,25.7661159 64.5887472,25.6518575 64.5887472,25.51102 L64.5887472,16.2301492 C64.5887472,16.0659095 64.6324786,15.9047406 64.7154101,15.7632678 L73.380124,1.11288948 C73.5081568,0.871877407 73.3290162,0.710390848 73.1731639,0.710390848 Z" id="形状" fill="#00DC5A"></path></g></g></svg>
+                        <img src={iconWebTeam} alt="" />
                     </Link>
                     <div>
                         <button onClick={handleDisplayRecommand} >Đề Xuất</button>
                     </div>
-                    <div onMouseEnter={() => setIsCountry(true)} onMouseLeave={() => setIsCountry(false)}>
-                        <button>Quốc gia</button>
-                        {isCountry && (
-                            <ul>
-                                {country?.map((item, index) => (
-                                    <li key={index} onClick={() => handleColabrate(item.nameContry,0)}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
-                                        </svg>
-                                        <span>{item.nameContry}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-                    <div onMouseEnter={() => setIsGenre(true)} onMouseLeave={() => setIsGenre(false)}>
-                        <button>Thể Loại</button>
-                        {isGenre && (
-                            <ul>
-                                {genre?.map((item, index) => (
-                                    <li key={index} onClick={() => handleColabrate(item.nameGenre,1)}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
-                                        </svg>
-                                        <span>{item.nameGenre}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
+                    <Filter setIsCountry={setIsCountry} title="Quốc gia" isCountry={isCountry} country={country} handleColabrate={handleColabrate} pos={0} />
+                    <Filter setIsCountry={setIsGenre} title="Thể Loại" isCountry={isGenre} country={genre} handleColabrate={handleColabrate} pos={1} />
                 </div>
                 <ToastContainer/>
                 <div className={cx('header-right')}>
@@ -333,34 +272,12 @@ function Header() {
                     <Box onMouseEnter={() => setIsAvatar(true)} onMouseLeave={() => setIsAvatar(false)} sx={{position:'relative'}}>
                         {
                            user&& getAvatar(user.avatar) == 2?
-                            <Avatar alt="Remy Sharp" src={import.meta.env.VITE_GET_IMAGE + user.avatar}/>:
+                            <Avatar alt="Remy Sharp" src={user.avatar}/>:
                             (getAvatar(user.avatar) == 0 ? <span style={{padding:'10px 13px', borderRadius:'50%'}} className="avatar text-bg-primary">{user.email[0].toUpperCase()}</span>
                         : <Avatar alt="Remy Sharp" src={user.avatar}/>)
                         }
                         {
-                            isAvatar && <Box sx={{backgroundColor: 'white !important',zIndex:'100',width:'170px', display:'flex',flexDirection:'column', padding:'10px',borderRadius:'10px', position:'absolute',bottom:'-205px',left:'-60px'}}>
-                                <Link style={{margin:'5px 0',textDecoration:'none',color:'black',fontWeight:'600',fontSize:'18px'}} to="/profile">
-                                    <Button fullWidth variant="outlined" startIcon={<AccountBoxIcon />}>
-                                            Profile
-                                    </Button>
-                                </Link>
-                                <Link style={{margin:'5px 0',textDecoration:'none',color:'black',fontWeight:'600',fontSize:'18px'}} to="/favorite">
-                                    <Button fullWidth variant="outlined" startIcon={<FavoriteBorderIcon />}>
-                                        Sở thích
-                                    </Button>   
-                                </Link>
-                                <Link style={{margin:'5px 0',textDecoration:'none',color:'black',fontWeight:'600',fontSize:'18px'}} to="/statistic">
-                                    <Button fullWidth variant="outlined" startIcon={<AutoGraphIcon />}>
-                                        Thống kê
-                                    </Button>
-                                </Link>
-                                <Link to="/" style={{margin:'5px 0',textDecoration:'none',color:'black',fontWeight:'600',fontSize:'18px'}} >
-                                    <Button onClick={handleLogout} fullWidth variant="outlined" startIcon={<LogoutIcon />}>
-                                        Đăng xuất
-                                    </Button>   
-                                </Link>
-
-                            </Box>
+                            isAvatar && <ProfileDown handleLogout={handleLogout}/>
                         }
                     </Box>
                     </Box>:
@@ -368,231 +285,16 @@ function Header() {
                         <Tooltip title="Login">
                                 <Button onClick={() => setOpenLogin(true)} variant="contained">Login</Button>
                         </Tooltip>         
-                        <Dialog
-                            open={openLogin}
-                            onClose={handleClose}
-                            PaperProps={{
-                                component: 'form'
-                            }}
-                            >
-                            <DialogTitle textAlign='center' fontSize='30px'>Login</DialogTitle>
-                            <DialogContent>
-                                <DialogContentText maxWidth='400px'>
-                                To subscribe to this website, please enter your email address here. We
-                                will send updates occasionally.
-                                </DialogContentText>
-                                <TextField
-                                onChange={(e) => handleSetLogin(e,0)}
-                                autoFocus
-                                required
-                                margin="dense"
-                                name="email"
-                                label="Email Address"
-                                type="email"
-                                fullWidth
-                                variant="standard"
-                                />
-                                 {isEmailErrLogin && <span style={{color:'red',fontSize:'14px'}}>The email is wrong!!!. Please try again.</span>}
-                                <TextField
-                                onChange={(e) => handleSetLogin(e,1)}
-                                required
-                                margin="dense"
-                                name="password"
-                                label="password"
-                                type="password"
-                                fullWidth
-                                variant="standard"
-                                />
-                                 {isPasswordErrLogin && <span style={{color:'red',fontSize:'14px'}}>The password is wrong!!!. Please try again.</span>}
-                                <div style={{height:"15px"}}></div>
-                           
-                                <Button fullWidth variant="outlined" color='warning' startIcon={<GoogleIcon />}>
-                                    Continue with Google 
-                                </Button>
-                                <div style={{height:"15px"}}></div>
-                                <Button fullWidth variant="outlined" startIcon={<FacebookIcon />}>
-                                Continue with Facebook 
-                                </Button>
-                                <div style={{height:"25px"}}></div>
-                                <p style={{textAlign:'center'}}>Don't have any account? 
-                                <Fragment>
-                                    <Link onClick={() => handleClickOpen(0)}>Sign Up</Link>
-                                    <Dialog
-                                        open={openSignUp}
-                                        onClose={handleClose}
-                                        PaperProps={{
-                                            component: 'form'
-                                        }}
-                                        >
-                                        <DialogTitle textAlign='center' fontSize='30px'>Sign Up</DialogTitle>
-                                        <DialogContent>
-                                            <DialogContentText maxWidth='400px'>
-                                            Are you ready enjoy the moment with our, please enter your email address here. We
-                                            will send updates occasionally.
-                                            </DialogContentText>
-                                            <TextField
-                                            onChange={(e) => handleSetLogin(e,2)}
-                                            autoFocus
-                                            required
-                                            margin="dense"
-                                            name="email"
-                                            label="Email Address"
-                                            type="email"
-                                            fullWidth
-                                            variant="standard"
-                                            />
-                                            {isEmailErr && <span style={{color:'red',fontSize:'14px'}}>The email alreay existing!!!. Please try again.</span>}
-                                            <TextField
-                                            onChange={(e) => handleSetLogin(e,3)}
-                                            autoFocus
-                                            required
-                                            margin="dense"
-                                            name="password"
-                                            label="password"
-                                            type="password"
-                                            fullWidth
-                                            variant="standard"
-                                            />
-                                            <div style={{height:"15px"}}></div>
-                                    
-                                            <Button fullWidth variant="outlined" color='warning' startIcon={<GoogleIcon />}>
-                                                Continue with Google 
-                                            </Button>
-                                            <div style={{height:"15px"}}></div>
-                                            <Button fullWidth variant="outlined" startIcon={<FacebookIcon />}>
-                                            Continue with Facebook 
-                                            </Button>
-                                            <div style={{height:"25px"}}></div>
-                                            <p style={{textAlign:'center'}}>Already have a account? <Link onClick={() => handleClickOpen(1)}>Login</Link>
-                                            </p>
-                                        </DialogContent>
-                                        <DialogActions>
-                                            <Button onClick={handleClose}>Cancel</Button>
-                                            <Button variant="contained" color='success' onClick={handleSignUp}>Sign Up</Button>
-                                        </DialogActions>
-                                        </Dialog>
-                                </Fragment>
-                                
-                                </p>
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={() =>handleClose(0)}>Cancel</Button>
-                                <Button variant="contained" color='primary' onClick={handleLogin}>Login</Button>
-                            </DialogActions>
-                        </Dialog>
+                        <Login openLogin={openLogin} handleClose={handleClose} handleSetLogin={handleSetLogin}
+                        isEmailErrLogin={isEmailErrLogin} isPasswordErrLogin={isPasswordErrLogin} handleLogin={handleLogin}
+                        handleClickOpen={handleClickOpen} openSignUp={openSignUp} isEmailErr={isEmailErr} handleSignUp={handleSignUp}/>
                         
                     </div>
                     
                     }
-                        <Fragment>
-                            <Button onClick={() => handleClickOpen(2)} style={{marginLeft:'15px'}} variant="contained" color='warning' startIcon={<CastleIcon />}>
-                                VIP
-                            </Button>
-                            {user&&<Dialog
-                                maxWidth='md'
-                                open={isOpenVip}
-                                onClose={handleClose}
-                                aria-labelledby="alert-dialog-title"
-                                aria-describedby="alert-dialog-description"
-                            >
-                                <DialogTitle style={{backgroundColor:'var(--background-layout)'}} id="alert-dialog-title">
-                                    <Box sx={{display:'flex',justifyContent:'space-between'}}>
-                                        <Box sx={{display:'flex', alignItems:'center'}}>
-                                            {
-                                               user.avatar?
-                                               <Avatar alt="Remy Sharp" src={import.meta.env.VITE_GET_IMAGE + user.avatar}/>:
-                                               <span style={{padding:'10px', borderRadius:'50%'}} className="avatar text-bg-primary">{user.email.split("@")[0].charAt(0).toUpperCase()}</span>
-                                            }
-                                            <Box sx={{marginLeft:'10px',color:'white',lineHeight: '1.1'}}>
-                                                <b style={{fontSize:'14px'}}>{user?.userName ? user?.userName : user.email.split('@')[0] }</b><br />
-                                                <span style={{fontSize:'15px',color:'var(--textGray)'}}>Đăng ký VIP để tận hưởng kho phim</span>
-                                            </Box>
-                                        </Box>
-                                        <IconButton style={{backgroundColor:'white'}} onClick={() => setIsOpenVip(false)} aria-label="delete">
-                                            <CloseIcon />
-                                        </IconButton>
-                                    </Box>
-                                </DialogTitle>
-                                <DialogContent style={{marginTop:'15px'}}>
-                                {buyVip && <Box sx={{display:'flex'}}>
-                                            {buyVip.map((item,index) =>{
-                                                return <div style={{backgroundColor: item.isType == 1?'var(--backgroundVipProcessing)': (item.isType == 2?'var(--backgroundVipApproved)':'var(--backgroundVip)')}}
-                                                         key={index} className={cx('buy-hover')}>
-                                                            <Box sx={{lineHeight:'1.1'}}>
-                                                                <b>{item.nameVip}</b><br />
-                                                                <small>{item.titleVip}</small>
-                                                            </Box>
-                                                            <div style={{height:'30px'}}></div>
-                                                            <Box sx={{lineHeight:'1.1'}}>
-                                                                <b>{item.priceVip}đ</b><br />
-                                                                <small style={{textDecoration:'line-through'}}>{item.subPriceVip}đ</small>
-                                                            </Box>
-                                                            <Box sx={{ marginTop:'10px'}}>
-                                                                <Button onClick={() => handleBuyVip(item.isType, item.buyVipId)}
-                                                                fullWidth variant="contained" 
-                                                                color={item.isType==0 ? 'primary': (item.isType==1 ? 'warning': 'success')}>
-                                                                    {item.isType==0 ? 'Buy': (item.isType==1 ? 'Processing': 'Approved')}</Button>
-                                                            </Box>
-                                                        </div>
-                                            }) 
-                                             }
-                                        </Box>}
-                                     <h3 style={{textAlign:'center',margin:'20px 0'}}>Quyền lợi đăng ký VIP</h3>
-                                     <ul className={cx('priority-icon')}>
-                                            <li>
-                                                <IconButton aria-label="two devices">
-                                                    <OfflineShareIcon/>
-                                                </IconButton>
-                                                <span>
-                                                    Xem đồng thời trên 2 thiết bị
-                                                </span>
-                                            </li>
-                                            <li>
-                                                <IconButton aria-label="two devices">
-                                                    <HdrOnIcon/>
-                                                </IconButton>
-                                                <span>1080P</span>
-                                            </li>
-                                            <li>
-                                                <IconButton aria-label="two devices">
-                                                    <LocalFireDepartmentIcon/>
-                                                </IconButton>
-                                                <span>Phim Bộ hot xem ngay</span>
-                                            </li>
-                                            <li>
-                                                <IconButton aria-label="two devices">
-                                                    <SecurityUpdateIcon/>
-                                                </IconButton>
-                                                <span>Tải xuống nội dung thành viên</span>
-                                            </li>
-                                            <li>
-                                                <IconButton aria-label="two devices">
-                                                    <FontDownloadOffIcon/>
-                                                </IconButton>
-                                                <span>VIP được chặn quảng cáo</span>
-                                            </li>
-                                            <li>
-                                                <IconButton aria-label="two devices">
-                                                    <LocationCityIcon/>
-                                                </IconButton>
-                                                <span>Dùng chung cho nhiều thiết bị</span>
-                                            </li>
-                                            <li>
-                                                <IconButton aria-label="two devices">
-                                                    <FlareIcon/>
-                                                </IconButton>
-                                                <span>Phim bom tấn</span>
-                                            </li>
-                                            <li>
-                                                <IconButton aria-label="two devices">
-                                                    <ConnectedTvIcon/>
-                                                </IconButton>
-                                                <span>Trải nghiệm rạp chiếu phim Dolby</span>
-                                            </li>
-                                        </ul> 
-                                </DialogContent>
-                            </Dialog>}
-                            </Fragment>
+                       <Vip handleClickOpen={handleClickOpen} user={user} isOpenVip={isOpenVip}
+                       handleClose={handleClose} setIsOpenVip={setIsOpenVip} buyVip={buyVip}
+                       setBuyVip={setBuyVip} getAvatar={getAvatar}/>
                 </div>
         </div> );
 }

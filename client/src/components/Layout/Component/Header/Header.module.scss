@@ -13,6 +13,9 @@
     .header-left{
         display: flex;
         align-items: center;
+        img{
+            width: 150px;
+        }
         div{
             margin: 0 10px;
             position: relative;

@@ -13,8 +13,9 @@ function MovieContextProvider({children}) {
     const [openLogin, setOpenLogin] = useState(false);
     const [movieAdmin, setMovieAdmin] = useState(null);
     const [movieVoteCount,setMovieVoteCount] = useState(null);
+    const [countryCode,setCountryCode] = useState(null)
     return ( <MovieContext.Provider value={{openLogin,setOpenLogin
-    ,movieCol,setMovieCol,setSearchMovie,searchMovie,isOpenVip,
+    ,movieCol,setMovieCol,setSearchMovie,searchMovie,isOpenVip,countryCode,setCountryCode,
     setIsOpenVip,movieAdmin,setMovieAdmin,movieVoteCount,setMovieVoteCount}}>
         {children}
     </MovieContext.Provider> );

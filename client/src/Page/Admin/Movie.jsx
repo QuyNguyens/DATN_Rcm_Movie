@@ -46,6 +46,7 @@ function MovieAdm() {
     const [open, setOpen] = useState(false);
     const [openEdit,setOpenEdit] = useState(false);
     const [pathFilePoster, setPathFilePoster] = useState('');
+    const [pathFileUrls, setPathFileUrls] = useState('');
     const [indexEdit,setIndexEdit] = useState(0);
     const {setAmountMovie} = useContext(UserContext);
 
@@ -124,6 +125,7 @@ function MovieAdm() {
             options:{
                 customBodyRender:() => <AddDialog open={open} setOpen={setOpen} handleClickOpen={handleClickOpen} 
                 handleClose={handleClose} pathFilePoster={pathFilePoster} setPathFilePoster={setPathFilePoster}
+                pathFileUrls={pathFileUrls} setPathFileUrls= {setPathFileUrls}
                />
             }
         },{
@@ -134,7 +136,8 @@ function MovieAdm() {
                                                         <ModeEditIcon color="success" />
                                                     </IconButton>
                                                     {openEdit && indexEdit == data.rowIndex && <EditDialog openEdit={openEdit} setOpenEdit={setOpenEdit}
-                                                                handleClose={handleClose} data={data.rowData} movie1={movieAdmin} setMovie1={setMovieAdmin}/>}
+                                                                handleClose={handleClose} data={data.rowData} movie1={movieAdmin} setMovie1={setMovieAdmin}
+                                                                pathFileUrls={pathFileUrls} setPathFileUrls= {setPathFileUrls}/>}
                                                   </Fragment> 
             }
         },{

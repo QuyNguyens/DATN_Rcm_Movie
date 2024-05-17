@@ -14,16 +14,33 @@ import Box from '@mui/material/Box';
 import { useState } from 'react';
 import axios from 'axios';
 import DeleteIcon from '@mui/icons-material/Delete';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormHelperText from '@mui/material/FormHelperText';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 import { notify } from "../../../components/Layout/Component/Notify";
 import { MovieContext } from "../../../MovieContext";
 import { UserContext } from "../../../UserContext";
 const cx = classNames.bind(styles);
 
-// eslint-disable-next-line react/prop-types
-function AddDialog({open,setOpen,handleClickOpen,handleClose,pathFilePoster,setPathFilePoster}) {
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+    PaperProps: {
+        style: {
+        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+        width: 250,
+        },
+    },
+};
 
-    const {movieAdmin,setMovieAdmin} = useContext(MovieContext);
+// eslint-disable-next-line react/prop-types
+function AddDialog({open,setOpen,handleClickOpen,handleClose,pathFilePoster,setPathFilePoster,pathFileUrls, setPathFileUrls}) {
+
+    const {movieAdmin,setMovieAdmin, countryCode} = useContext(MovieContext);
     const {setAmountMovie} = useContext(UserContext);
+    const [language, setLanguage] = useState('US');
     const [movie,setMovie] = useState({
         title: '',
         descriptions: '',
@@ -33,7 +50,6 @@ function AddDialog({open,setOpen,handleClickOpen,handleClose,pathFilePoster,setP
       });
     
     const handleAddMovie = (e,type) =>{
-        console.log('co vao day');
         switch(type){
             case 'title':
                 setMovie({
@@ -54,6 +70,7 @@ function AddDialog({open,setOpen,handleClickOpen,handleClose,pathFilePoster,setP
                 });
                 break;
             case 'language':
+                setLanguage(e.target.value);
                 setMovie({
                     ...movie,
                     originalLanguage: e.target.value
@@ -76,6 +93,14 @@ function AddDialog({open,setOpen,handleClickOpen,handleClose,pathFilePoster,setP
         .catch(err => console.log('upload failed: ',err));
 
     };
+
+    const handleVideoChange = (event) => {
+        const file = event.target.files[0];
+        const pathFile = "D:/MovieVideo/" + file.name ;
+        setPathFileUrls(pathFile);
+ 
+    };
+
     const handleClickAddMovie = () => {
         const updateMovie = {
             ...movie,
@@ -91,6 +116,7 @@ function AddDialog({open,setOpen,handleClickOpen,handleClose,pathFilePoster,setP
         })
         .catch(err => console.log('add movie err: ',err));
     }
+
     return ( <Fragment>
                 <IconButton onClick={() => handleClickOpen('add')} aria-label="add">
                     <LibraryAddIcon color="primary" />
@@ -100,7 +126,7 @@ function AddDialog({open,setOpen,handleClickOpen,handleClose,pathFilePoster,setP
                     onClose={() => handleClose('add')}
                     maxWidth= 'md'
                 >
-                    <DialogTitle>Add Movie</DialogTitle>
+                    <DialogTitle style={{textAlign:'center',fontSize:'28px'}}>Add Movie</DialogTitle>
                     <DialogContent style={{width:'550px'}}>
                             <form >
                                 <Box sx={{margin:'10px 0'}}>
@@ -112,12 +138,40 @@ function AddDialog({open,setOpen,handleClickOpen,handleClose,pathFilePoster,setP
                                     <TextField style={{width:'100%'}} onChange={e => handleAddMovie(e,'desc')} id="filled-basic" value={movie?.descriptions!=null ? movie?.descriptions: ''} variant="outlined" />
                                 </Box>
                                 <Box sx={{margin:'10px 0'}}>
-                                    <span>Url:</span><br />
-                                    <TextField style={{width:'100%'}} onChange={e => handleAddMovie(e,'url')} id="filled-basic" value={movie?.urls!=null ? movie?.urls: ''} variant="outlined" />
+                                    <span>Urls</span>
+                                    <Box sx={{height:'100px', border:'0.2px solid var(--borderLeftbar)', display:'flex', alignItems:'center', justifyContent:'center'}}>
+                                        <input type="file" id="fileInput"
+                                            accept=".mp4,.mov,.avi"
+                                            style={{ display: 'none' }} 
+                                            onChange={(event) => handleVideoChange(event)}/>
+                                        {pathFileUrls && <span>{pathFileUrls}</span>}
+                                                <Box sx={{ display: 'flex', alignItems: 'center',marginLeft:'15px' }}>
+                                                    <label htmlFor="fileInput" style={{ cursor: 'pointer' }}>
+                                                    <span style={{ border: '1px solid #ccc', padding: '5px 10px', borderRadius: '4px' }}>
+                                                        Upload Video
+                                                    </span>
+                                                    </label>
+                                                </Box>
+                                            </Box>
                                 </Box>
                                 <Box sx={{margin:'10px 0'}}>
                                     <span>Original_language:</span><br />
-                                    <TextField style={{width:'100%'}} onChange={e => handleAddMovie(e,'language')} id="filled-basic" value={movie?.originalLanguage!=null ? movie?.originalLanguage: ''} variant="outlined" />
+                                    <FormControl required sx={{ m: 1, minWidth: 200 }}>
+                                        <InputLabel id="demo-simple-select-required-label">Original_language</InputLabel>
+                                        <Select
+                                            labelId="demo-simple-select-required-label"
+                                            id="demo-simple-select-required"
+                                            value={language}
+                                            label="Original_language *"
+                                            MenuProps = {MenuProps}
+                                            onChange={(e) => handleAddMovie(e,'language')}
+                                        >
+                                        {countryCode.map((item,index) =>{
+                                            return <MenuItem key={index} value={item.countryId}>{item.nameContry}</MenuItem>
+                                        })}
+                                        </Select>
+                                        <FormHelperText>Required</FormHelperText>
+                                    </FormControl>
                                 </Box>
                                 <Box sx={{margin:'10px 0'}}>
                                     <span>Poster</span>

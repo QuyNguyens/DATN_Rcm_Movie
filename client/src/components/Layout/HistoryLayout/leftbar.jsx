@@ -2,7 +2,7 @@ import classNames from 'classnames/bind';
 import styles from './style.module.scss';
 import images from '../../../assets/3.jpg';
 import Button from '@mui/material/Button';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import { MovieContext } from "../../../MovieContext";
 import { useContext } from 'react';
 import { UserContext } from '../../../UserContext';
@@ -10,8 +10,12 @@ import { UserContext } from '../../../UserContext';
 const cx = classNames.bind(styles);
 function Leftbar() {
     const {setIsOpenVip} = useContext(MovieContext);
-    const {user} = useContext(UserContext);
-    console.log('user-left: ',user)
+    const {user,setUser} = useContext(UserContext); 
+    const navigate = useNavigate();
+    const handleLogout = () =>{
+        setUser(null);
+        navigate('/');
+    }
     return ( <div className={cx('history-left')}>
                 <div>
                     <img src={user.avatar} alt="" />
@@ -25,7 +29,7 @@ function Leftbar() {
                     <li><Link to="/history">Lịch sử xem</Link></li>
                     <li><Link to="/favorite">Sưu tập của tôi</Link></li>
                     <li><Link to="/statistic">Thống kê</Link></li>
-                    <li><Link to="/logout">Đăng xuất</Link></li>
+                    <li onClick={handleLogout}><Link >Đăng xuất</Link></li>
                 </ul>
             </div> );
 }
