@@ -19,7 +19,7 @@ function Statistic() {
         axios.get(import.meta.env.VITE_GET_STATISTIC+user.userId)
         .then(result => {
             let newdata = [];
-            [0,1].map((item, index) => (
+            [0,1,2,3,4].map((item, index) => (
                 newdata.push({
                     id: index,
                     value: (result.data.accessTime[index]/60).toFixed(2),
@@ -27,7 +27,7 @@ function Statistic() {
                   })
             ));
             const total = newdata.reduce((accumulator, currentValue) => accumulator + Number(currentValue.value), 0);
-            setTotalValue(total);
+            setTotalValue(total.toFixed(2));
             setData(newdata);
         })
         .catch(err => console.log('errStatistic: ',err));
@@ -71,7 +71,7 @@ function Statistic() {
                     </div>
                     <div className={cx('statistic-gift')}>
                         <Box sx={{width: '90%',height:'3px',backgroundColor: 'white',position:'relative'}}>
-                            <Box sx={{ width: `${totalValue*10}%`, height: '3px', backgroundColor: 'green', position:'absolute' }}>
+                            <Box sx={{ width: `${totalValue/60*10}%`, height: '3px', backgroundColor: 'green', position:'absolute' }}>
                                 <Box sx={{width:'15px',height:'15px',backgroundColor:'green', borderRadius:'50%', position:'absolute',right:'-5px',top:'-6px'}}></Box>
                             </Box>
                         </Box>

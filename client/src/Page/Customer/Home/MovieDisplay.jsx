@@ -20,10 +20,10 @@ function MovieDisplay({handleIndexht,title,movie,indexrcm,handleDetailMovie,titl
             </svg>
         </div>
         { movie.slice(indexrcm,indexrcm+6).map((item,index) =>{
-                return <li key={index} onClick={() => handleDetailMovie(item.movieId)}>
-                        <img src={item.poster} alt="" />
-                        <span>{item.title}</span>
-                    </li>
+            return <li key={index} onClick={() => handleDetailMovie(item.movieId)}>
+                    <img src={item.poster} alt="" />
+                    <span>{item.title}</span>
+                </li>
         })
         }
     </ul>

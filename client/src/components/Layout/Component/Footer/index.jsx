@@ -13,8 +13,8 @@ const cx = classNames.bind(style);
 function Footer() {
     return ( <div className={cx('footer')}>
             <div className={cx('footer-box')}>
-                <h4>Trải nghiệm tốt nhất chỉ có trên iQIYI APP</h4>
-                <p><span>Q iQIYI</span>Tìm kiếm trong cửa hàng ứng dụng dành cho thiết bị di động</p>
+                <h4>Trải nghiệm tốt nhất chỉ có trên CYBERKNIGHT APP</h4>
+                <p><span>CyberKnight</span>Tìm kiếm trong cửa hàng ứng dụng dành cho thiết bị di động</p>
                 <ul className={cx('ul-first')}>
                     <li>
                         <Button variant="outlined" color="inherit" startIcon={<TvIcon />}>

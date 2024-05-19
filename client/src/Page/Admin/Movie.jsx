@@ -137,7 +137,7 @@ function MovieAdm() {
                                                     </IconButton>
                                                     {openEdit && indexEdit == data.rowIndex && <EditDialog openEdit={openEdit} setOpenEdit={setOpenEdit}
                                                                 handleClose={handleClose} data={data.rowData} movie1={movieAdmin} setMovie1={setMovieAdmin}
-                                                                pathFileUrls={pathFileUrls} setPathFileUrls= {setPathFileUrls}/>}
+                                                                />}
                                                   </Fragment> 
             }
         },{

@@ -36,7 +36,7 @@ const MenuProps = {
     },
 };
 // eslint-disable-next-line react/prop-types
-function EditDialog({openEdit,setOpenEdit,handleClose,data,movie1,setMovie1,pathFileUrls, setPathFileUrls}) {
+function EditDialog({openEdit,setOpenEdit,handleClose,data,movie1,setMovie1}) {
     
     const [valueType, setValueType] = useState(data[2] == 0 ?'normal': (data[2] == 1?'new':'hot'));
     const [movie,setMovie] = useState({
@@ -66,12 +66,6 @@ function EditDialog({openEdit,setOpenEdit,handleClose,data,movie1,setMovie1,path
                 setMovie({
                     ...movie,
                     title: e.target.value
-                });
-                break;
-            case 'url':
-                setMovie({
-                    ...movie,
-                    urls: e.target.value
                 });
                 break;
             case 'language':
@@ -123,14 +117,6 @@ function EditDialog({openEdit,setOpenEdit,handleClose,data,movie1,setMovie1,path
         })
         .catch(err => console.log('add movie err: ',err));
     }
-
-    const handleVideoChange = (event) => {
-        const file = event.target.files[0];
-        const pathFile = "D:/MovieVideo/" + file.name ;
-        setPathFileUrls(pathFile);
- 
-    };
-    console.log('movie: ', movie1)
     return (
                 <Dialog
                     open={openEdit}
@@ -157,24 +143,7 @@ function EditDialog({openEdit,setOpenEdit,handleClose,data,movie1,setMovie1,path
                                         <FormControlLabel value="new" control={<Radio />} label="New" />
                                         <FormControlLabel value="hot" control={<Radio />} label="Hot" />
                                     </RadioGroup>
-                                </FormControl>
-                                <Box sx={{margin:'10px 0'}}>
-                                    <span>Urls</span>
-                                    <Box sx={{height:'100px', border:'0.2px solid var(--borderLeftbar)', display:'flex', alignItems:'center', justifyContent:'center'}}>
-                                        <input type="file" id="fileInput"
-                                            accept=".mp4,.mov,.avi"
-                                            style={{ display: 'none' }} 
-                                            onChange={(event) => handleVideoChange(event)}/>
-                                        {pathFileUrls && <span>{pathFileUrls}</span>}
-                                                <Box sx={{ display: 'flex', alignItems: 'center',marginLeft:'15px' }}>
-                                                    <label htmlFor="fileInput" style={{ cursor: 'pointer' }}>
-                                                    <span style={{ border: '1px solid #ccc', padding: '5px 10px', borderRadius: '4px' }}>
-                                                        Upload Video
-                                                    </span>
-                                                    </label>
-                                                </Box>
-                                            </Box>
-                                </Box>
+                                </FormControl> 
                                 <Box sx={{margin:'10px 0'}}>
                                 <span>Original_language:</span><br />
                                     <FormControl required sx={{ m: 1, minWidth: 200 }}>

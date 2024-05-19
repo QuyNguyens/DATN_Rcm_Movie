@@ -5,6 +5,7 @@ import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../UserContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { notify } from "../../components/Layout/Component/Notify";
 
 const cx = classNames.bind(styles);
 function HistoryPage() {
@@ -26,15 +27,15 @@ function HistoryPage() {
       .then(result => {
         const updatedMovies = image.filter(movie => movie.movieId !== parseInt(result.data.result));
         setImage(updatedMovies);
-        console.log('remove success: ', result)})
+        notify('Remove success')})
       .catch(err => console.log('remove failed: ', err));
     }
 
     const handleRemoveAllFavorite = () =>{
       axios.delete(import.meta.env.VITE_DELETE_ALL_HISTORY+user.userId)
-      .then(result => {
+      .then(() => {
         setImage([]);
-        console.log('remove success: ', result)})
+        notify('Remove success')})
       .catch(err => console.log('remove failed: ', err));
     }
 

@@ -22,6 +22,8 @@ import Select from '@mui/material/Select';
 import { notify } from "../../../components/Layout/Component/Notify";
 import { MovieContext } from "../../../MovieContext";
 import { UserContext } from "../../../UserContext";
+import CircularProgress from '@mui/material/CircularProgress';
+import ShowVideoErr from "./ShowVideoErr";
 const cx = classNames.bind(styles);
 
 const ITEM_HEIGHT = 48;
@@ -41,6 +43,11 @@ function AddDialog({open,setOpen,handleClickOpen,handleClose,pathFilePoster,setP
     const {movieAdmin,setMovieAdmin, countryCode} = useContext(MovieContext);
     const {setAmountMovie} = useContext(UserContext);
     const [language, setLanguage] = useState('US');
+    const [isVideo,setIsVideo] = useState(false);
+    const [checkVideo,setCheckVideo] = useState(false);
+    const [isCheckVideo, setIsCheckVideo] = useState(false);
+
+    const [images,setImages] = useState();
     const [movie,setMovie] = useState({
         title: '',
         descriptions: '',
@@ -94,13 +101,43 @@ function AddDialog({open,setOpen,handleClickOpen,handleClose,pathFilePoster,setP
 
     };
 
-    const handleVideoChange = (event) => {
+    const handleVideoChange = (event) => {   
         const file = event.target.files[0];
-        const pathFile = "D:/MovieVideo/" + file.name ;
+        const pathFile = "C:/Users/ACER/Desktop/model/" + file.name ;
         setPathFileUrls(pathFile);
- 
     };
 
+    const handleDetectVideo = () =>{
+        setIsVideo(true);
+        const data = {
+            url: pathFileUrls
+        }
+        axios.post(import.meta.env.VITE_POST_DECTECT_VIDEO_MODEL,data)
+        .then(result =>{
+            console.log('resultDetect: ',result.data);
+            setIsVideo(false);
+            if(result.data.safe == 1){
+                const imageList = result.data.image_list;
+                const convertImageList = (imageList) => {
+                    return imageList.map((path) => {
+                      const fileName = path.split('\\').pop();
+                      return {
+                        original: `../../../../public/${fileName}`,
+                        thumbnail: `../../../../public/${fileName}`,
+                        description: fileName,
+                      };
+                    });
+                  };
+                console.log('Convert: ',convertImageList);
+                setImages(convertImageList(imageList));
+                setCheckVideo(true);
+            }else{
+                setCheckVideo(false);
+            }
+            setIsCheckVideo(true);
+        })
+        .catch(err => console.log('err dectect video: ',err));
+    }
     const handleClickAddMovie = () => {
         const updateMovie = {
             ...movie,
@@ -152,6 +189,14 @@ function AddDialog({open,setOpen,handleClickOpen,handleClose,pathFilePoster,setP
                                                     </span>
                                                     </label>
                                                 </Box>
+                                    </Box>
+                                            <Box sx={{display:'flex', margin:'10px 0', alignItems:'center'}}>
+                                                {
+                                                !isCheckVideo ? 
+                                                (!isVideo ? <span onClick={handleDetectVideo} className="btn btn-primary">Check</span>
+                                                : <Box sx={{display:'flex'}}><span style={{margin:'0 10px'}}>Đang xử lý</span> <CircularProgress /></Box>)
+                                                : checkVideo ? <ShowVideoErr images={images}/> : <span className="btn btn-success">Safe</span>
+                                                }
                                             </Box>
                                 </Box>
                                 <Box sx={{margin:'10px 0'}}>
@@ -194,7 +239,7 @@ function AddDialog({open,setOpen,handleClickOpen,handleClose,pathFilePoster,setP
                                                     </span>
                                                     </label>
                                                 </Box>
-                                            </Box>
+                                    </Box>
                                 </Box>
                             </form>      
                     </DialogContent>

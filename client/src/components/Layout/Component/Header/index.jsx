@@ -42,7 +42,30 @@ function Header() {
         Email:'',
         Password:''
     })
+    const [selectedCountries, setSelectedCountries] = useState({
+        Japan: true,
+        France: false,
+        USA: false,
+    });
+    const [selectedGenres, setSelectedGenres] = useState({
+        Action: false,
+        War: true,
+        Comedy: false,
+    });
 
+    const handleChange = (event,type) => {
+    if(type==0){
+        setSelectedGenres({
+            ...selectedGenres,
+            [event.target.name]: event.target.checked,
+            });
+    }else{
+        setSelectedCountries({
+            ...selectedCountries,
+            [event.target.name]: event.target.checked,
+        });
+    }
+    };
     const handleSetLogin = (e, check) =>{
         if(isEmailErrLogin == true){
             setIsEmailErrLogin(false);
@@ -71,7 +94,10 @@ function Header() {
         axios.post(import.meta.env.VITE_POST_SIGNIN,userLogin.current)
         .then(async data => {
             notify('Login success');
-            setUser(data.data); 
+            setUser(data.data);
+            if(data.data.role == 1){
+                navigate('/adm/home');
+            }
 
             let userSub = data.data.subModals;
             let buyVIP = data.data.buyVips;
@@ -86,13 +112,10 @@ function Header() {
                 item.isType = matchedSub ? matchedSub.status : 0;
             });
             setBuyVip(buyVIP);
-
-            let listId = [];
             const result = await axios.get(import.meta.env.VITE_GET_RECOMMEND_LIST_MOVIE_ID + data.data.userId);
             console.log('data: ', result.data);
-            listId = result.data.map(id => id + 1);
 
-            axios.post(import.meta.env.VITE_GET_RECOMMEND,listId)
+            axios.post(import.meta.env.VITE_GET_RECOMMEND,result.data)
             .then(result => {
                 const newMovie = {...movieCol};
                 newMovie.movieRcm = result.data;
@@ -113,13 +136,65 @@ function Header() {
 
     //create user
     const handleSignUp = () =>{
+
         if(userSignUp.current.Email == '' || userSignUp.current.Password ==''){
             notifyErr("Email or Password is empty!!!")
         }else{
+            if(userSignUp.current.Email)
             axios.post(import.meta.env.VITE_POST_SIGNUP,userSignUp.current)
-            .then(() => {
-                notify('The account has created successful');
-                setIsEmailErr(false);})
+            .then(userCre => {
+                console.log('userCre: ',userCre.data);
+                const getCountryCodes = () => {
+                    const countryMap = {
+                      Japan: 'JP',
+                      France: 'FR',
+                      USA: 'US',
+                    };
+                
+                    return Object.entries(selectedCountries)
+                      .filter(([country, isSelected]) => isSelected)
+                      .map(([country]) => countryMap[country]);
+                  };
+                  const myContries = getCountryCodes();
+                
+                  const getGenreCodes = () => {
+                    const genreMap = {
+                      Action: 28,
+                      War: 10752,
+                      Comedy: 35,
+                    };
+                
+                    return Object.entries(selectedGenres)
+                      .filter(([genre, isSelected]) => isSelected)
+                      .map(([genre]) => genreMap[genre]);
+                  };
+                
+                  const myGenres = getGenreCodes();
+
+                 const myData = {
+                    userId: userCre.data.responseCode,
+                    genres: myGenres,
+                    countries: myContries
+                  }
+                  axios.post(import.meta.env.VITE_POST_CREATE_RATING_LIST,myData)
+                  .then(result => {
+                      const newData = {
+                          userId : myData.userId,
+                          listMovieId: result.data.genres
+                        }
+                        axios.post(import.meta.env.VITE_POST_CREATE_RATING_LIST_MODEL,newData)
+                        .then(() =>{
+                            axios.get(import.meta.env.VITE_GET_TRAIN_MODEL)
+                            .then(() =>{
+                                notify('The account has created successful');
+                                setIsEmailErr(false);
+                            })
+                            .catch(err => console.log('err train-model: ',err))
+                        })
+                        .catch(err => console.log('err rating-model: ',err));
+                  })
+                  .catch(err => console.log('err create rating: ', err));
+            })
             .catch(() => setIsEmailErr(true));
         }
     }
@@ -287,7 +362,8 @@ function Header() {
                         </Tooltip>         
                         <Login openLogin={openLogin} handleClose={handleClose} handleSetLogin={handleSetLogin}
                         isEmailErrLogin={isEmailErrLogin} isPasswordErrLogin={isPasswordErrLogin} handleLogin={handleLogin}
-                        handleClickOpen={handleClickOpen} openSignUp={openSignUp} isEmailErr={isEmailErr} handleSignUp={handleSignUp}/>
+                        handleClickOpen={handleClickOpen} openSignUp={openSignUp} isEmailErr={isEmailErr}
+                        handleSignUp={handleSignUp} selectedCountries={selectedCountries} selectedGenres={selectedGenres} handleChange = {handleChange}/>
                         
                     </div>
                     

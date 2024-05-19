@@ -21,7 +21,6 @@ function Home() {
     const [indexrcm,setIndexrcm] = useState(0);
 
     const navigate = useNavigate();
-
     //----------------------------------------
     const handleIndexht = (index,check) =>{
         switch(check){
@@ -160,7 +159,6 @@ function Home() {
     return ( 
         <div className={cx("home-page")}>
             <SlideShow/>
-            <h1 style={{textAlign:'center', margin:'20px 0', color:'white'}}> Poster</h1>
             {<Box sx={{display:'flex', justifyContent:'center'}}> <Poster movie={movieCol.movieHot}
             indexbg={indexbg} handleDetailMovie={handleDetailMovie}
             handleToFavorite={handleToFavorite} handleIndexht={handleIndexht} /></Box>}
@@ -170,15 +168,15 @@ function Home() {
             handleDetailMovie={handleDetailMovie} titleMovie="Phim Đề Xuất"/>}
 
             {movieCol.movieClb && movieCol.movieClb.length>0 && <MovieDisplay handleIndexht={handleIndexht}
-            title="col" indexrcm={indexrcm} movie={movieCol.movieClb}
+            title="col" indexrcm={indexclb} movie={movieCol.movieClb}
             handleDetailMovie={handleDetailMovie} titleMovie="Phim Chọn Lọc"/>}
 
             {movieCol.movieHot && movieCol.movieHot.length>0 &&<MovieDisplay handleIndexht={handleIndexht}
-            title="ht" indexrcm={indexrcm} movie={movieCol.movieHot}
+            title="ht" indexrcm={indexht} movie={movieCol.movieHot}
             handleDetailMovie={handleDetailMovie} titleMovie="Phim Hot"/>}
             
             {movieCol.movieNew && movieCol.movieNew.length>0 && <MovieDisplay handleIndexht={handleIndexht}
-            title="new" indexrcm={indexrcm} movie={movieCol.movieNew}
+            title="new" indexrcm={indexnew} movie={movieCol.movieNew}
             handleDetailMovie={handleDetailMovie} titleMovie="Phim Mới"/>}
     </div> );
 }

@@ -1,13 +1,15 @@
+import { useContext } from 'react';
 import 
-{ BsGrid1X2Fill, BsFillArchiveFill, BsFillGrid3X3GapFill, BsPeopleFill, 
-  BsListCheck, BsMenuButtonWideFill, BsFillGearFill}
+{ BsGrid1X2Fill, BsFillArchiveFill, BsPeopleFill, 
+  BsListCheck, BsMenuButtonWideFill}
  from 'react-icons/bs'
 import { useNavigate } from 'react-router-dom'
+import { UserContext } from '../../../UserContext';
 
 // eslint-disable-next-line react/prop-types
 function Sidebar({openSidebarToggle, OpenSidebar}) {
     const navigate = useNavigate();
-
+    const {user} = useContext(UserContext);
     const handleNavigate = (path) =>{
         navigate(path);
     }
@@ -15,7 +17,7 @@ function Sidebar({openSidebarToggle, OpenSidebar}) {
         <aside id="sidebar" className={openSidebarToggle ? "sidebar-responsive": ""}>
             <div className='sidebar-title'>
                 <div className='sidebar-brand'>
-                    <BsPeopleFill  className='icon_header'/> ADMIN
+                    <BsPeopleFill  className='icon_header'/> {user?.userName}
                 </div>
                 <span className='icon close_icon' onClick={OpenSidebar}>X</span>
             </div>
@@ -27,9 +29,6 @@ function Sidebar({openSidebarToggle, OpenSidebar}) {
                 <li onClick={() => handleNavigate('/adm/movie')} className='sidebar-list-item'>
                     <BsFillArchiveFill className='icon'/> Movie
                 </li>
-                <li onClick={() => handleNavigate()} className='sidebar-list-item'>
-                    <BsFillGrid3X3GapFill className='icon'/> Country
-                </li>
                 <li onClick={() => handleNavigate('/adm/user')} className='sidebar-list-item'>
                     <BsPeopleFill className='icon'/> Customers
                 </li>
@@ -38,9 +37,6 @@ function Sidebar({openSidebarToggle, OpenSidebar}) {
                 </li>
                 <li onClick={() => handleNavigate('/adm/alert')} className='sidebar-list-item'>
                     <BsMenuButtonWideFill className='icon'/> Alert
-                </li>
-                <li onClick={() => handleNavigate('/adm/setting')} className='sidebar-list-item'>
-                    <BsFillGearFill className='icon'/> Setting
                 </li>
             </ul>
         </aside>

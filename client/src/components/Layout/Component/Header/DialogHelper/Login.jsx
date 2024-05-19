@@ -10,7 +10,7 @@ import FacebookIcon from '@mui/icons-material/Facebook';
 import 'react-toastify/dist/ReactToastify.css';
 import Register from './Register';
 // eslint-disable-next-line react/prop-types
-function Login({openLogin,handleClose,handleSetLogin,isEmailErrLogin,isPasswordErrLogin,handleLogin,handleClickOpen,openSignUp,isEmailErr,handleSignUp}) {
+function Login({openLogin,handleClose,handleSetLogin,isEmailErrLogin,isPasswordErrLogin,handleLogin,handleClickOpen,openSignUp,isEmailErr,handleSignUp,selectedCountries,selectedGenres,handleChange}) {
     return (  <Dialog
         open={openLogin}
         onClose={handleClose}
@@ -59,7 +59,8 @@ function Login({openLogin,handleClose,handleSetLogin,isEmailErrLogin,isPasswordE
             <div style={{height:"25px"}}></div>
             <p style={{textAlign:'center'}}>Don't have any account? 
                 <Register handleClickOpen={handleClickOpen} openSignUp= {openSignUp} handleClose={handleClose}
-                handleSetLogin={handleSetLogin} isEmailErr={isEmailErr} handleSignUp ={handleSignUp}/>              
+                handleSetLogin={handleSetLogin} isEmailErr={isEmailErr} handleSignUp ={handleSignUp}
+                selectedCountries={selectedCountries} selectedGenres={selectedGenres} handleChange = {handleChange}/>              
             </p>
         </DialogContent>
         <DialogActions>

@@ -1,5 +1,5 @@
 
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -11,9 +11,12 @@ import DialogTitle from '@mui/material/DialogTitle';
 import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import 'react-toastify/dist/ReactToastify.css';
+import Checkbox from '@mui/material/Checkbox';
 
+const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 // eslint-disable-next-line react/prop-types
-function Register({handleClickOpen,openSignUp,handleClose,handleSetLogin,isEmailErr,handleSignUp}) {
+function Register({handleClickOpen,openSignUp,handleClose,handleSetLogin,isEmailErr,handleSignUp,selectedCountries,selectedGenres,handleChange}) {
+    
     return (  <Fragment>
         <Link onClick={() => handleClickOpen(0)}>Sign Up</Link>
         <Dialog
@@ -52,7 +55,20 @@ function Register({handleClickOpen,openSignUp,handleClose,handleSetLogin,isEmail
                 fullWidth
                 variant="standard"
                 />
-                <div style={{height:"15px"}}></div>
+                <div >
+                    <h6>Chọn thể loại phim bạn yêu thích</h6>
+                    <div style={{display:'flex', justifyContent:'space-evenly'}}>
+                        <span style={{width:'33%'}}> <Checkbox checked={selectedGenres.Action} onChange={e => handleChange(e,0)} name="Action"/>Hành Động</span>
+                        <span style={{width:'33%'}}><Checkbox checked={selectedGenres.War}  onChange={e => handleChange(e,0)} name="War"/>Chiến Tranh</span>
+                        <span style={{width:'33%'}}><Checkbox checked={selectedGenres.Comedy }  onChange={e => handleChange(e,0)} name="Comedy" />Hài Hước</span>
+                    </div>
+                    <h6>Chọn quốc gia phim bạn yêu thích</h6>
+                    <div style={{display:'flex', justifyContent:'space-evenly'}}>
+                        <span style={{width:'33%'}}> <Checkbox checked={selectedCountries.Japan}  onChange={e => handleChange(e,1)} name="Japan"/>Nhật Bản</span>
+                        <span style={{width:'33%'}}><Checkbox checked={selectedCountries.France}  onChange={e => handleChange(e,1)} name="France"/>Pháp</span>
+                        <span style={{width:'33%'}}><Checkbox checked={selectedCountries.USA}  onChange={e => handleChange(e,1)} name="USA" />Mỹ</span>
+                    </div>
+                </div>
         
                 <Button fullWidth variant="outlined" color='warning' startIcon={<GoogleIcon />}>
                     Continue with Google 

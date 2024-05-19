@@ -21,6 +21,7 @@ import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import FlareIcon from '@mui/icons-material/Flare';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
+import { notify } from '../../Notify';
 
 const cx = classNames.bind(style);
 // eslint-disable-next-line react/prop-types
@@ -28,7 +29,7 @@ function Vip({handleClickOpen,user,isOpenVip,handleClose,setIsOpenVip,buyVip,set
 
     const handleBuyVip = (status, idBuyVip) =>{
         const data = {
-            userId: user.userId,
+            userId: user?.userId,
             status: status,
             isType: idBuyVip
         }
@@ -37,8 +38,8 @@ function Vip({handleClickOpen,user,isOpenVip,handleClose,setIsOpenVip,buyVip,set
             .then(() => {
                 let newData = [...buyVip];
                 newData.find(item => item.buyVipId === idBuyVip).isType = 1
-                console.log('newData: ', newData);
                 setBuyVip(newData);
+                notify('Đang chờ xử lý');
             })
             .catch(err => console.log('err: ',err));
         }

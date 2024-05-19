@@ -1,13 +1,16 @@
 import  { useState, useEffect } from 'react';
 import './slideshow.css';
-import image1 from '../../../assets/anh8.jpg';
-import image2 from '../../../assets/anh9.jpg';
-import image3 from '../../../assets/anh10.jpg';
-import image4 from '../../../assets/anh11.jpg';
-import image5 from '../../../assets/anh12.jpg';
+import image1 from '../../../assets/statistic.png';
+import image2 from '../../../assets/vip.png';
+import image3 from '../../../assets/history.png';
+import image4 from '../../../assets/rating.png';
+import image5 from '../../../assets/adminHome.png';
+import image6 from '../../../assets/movieAdm.png';
+import image7 from '../../../assets/userSub.png';
+
 
 const images = [
-  image1,image2,image3,image4,image5
+  image1,image2,image3,image4,image5,image6,image7
 ];
 
 const SlideShow = () => {
@@ -28,26 +31,28 @@ const SlideShow = () => {
   };
 
   return (<div className='container'>
-            <div className="slideshow-container">
-              <h1 style={{margin:'20px 0', color:'white', textAlign:'center'}}>Our Movies</h1>
-              <div className="slides">
-                {images.map((image, index) => (
-                  <div
-                    className={`slide ${index === currentIndex ? 'active' : ''}`}
-                    key={index}
-                  >
-                    <img src={image} alt={`Slide ${index + 1}`} />
-                  </div>
-                ))}
-              </div>
-              <div className="dots">
-                {images.map((_, index) => (
-                  <span
-                    key={index}
-                    className={`dot ${index === currentIndex ? 'active' : ''}`}
-                    onClick={() => goToSlide(index)}
-                  ></span>
-                ))}
+            <div className='container-box'>
+            <h1 style={{margin:'10px 0', textAlign:'center'}}>Introduce Our Website</h1>
+              <div className="slideshow-container">
+                <div className="slides">
+                  {images.map((image, index) => (
+                    <div
+                      className={`slide ${index === currentIndex ? 'active' : ''}`}
+                      key={index}
+                    >
+                      <img src={image} alt={`Slide ${index + 1}`} />
+                    </div>
+                  ))}
+                </div>
+                <div className="dots">
+                  {images.map((_, index) => (
+                    <span
+                      key={index}
+                      className={`dot ${index === currentIndex ? 'active' : ''}`}
+                      onClick={() => goToSlide(index)}
+                    ></span>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

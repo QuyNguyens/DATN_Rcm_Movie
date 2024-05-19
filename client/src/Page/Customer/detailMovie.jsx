@@ -21,11 +21,12 @@ function DetailMovie() {
     const [movieDisplay, setMovieDisplay] = useState();
     const { id } = useParams(); 
     const navigate = useNavigate();
-    const {movieCol,setIsOpenVip} = useContext(MovieContext);
+    const {movieCol,setMovieCol,setIsOpenVip} = useContext(MovieContext);
     const {user} = useContext(UserContext);
     const videoRef = useRef(null);
     const [currentMinute, setCurrentMinute] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
+    console.log('movieCol: ', movieCol.movieRcm);
     useEffect(() => {
         let intervalId;
     
@@ -41,26 +42,26 @@ function DetailMovie() {
         return () => clearInterval(intervalId);
       }, [isPlaying]);
 
-      useEffect(() => {
-        window.addEventListener('beforeunload', () => {
-            if(currentMinute >= 20){
-                const data = {
-                    userId: user.userId,
-                    countryId: movieDisplay.countrys[0].countryId,
-                    accessTime: currentMinute,
-                    nameCountry: ""
-                }
+    //   useEffect(() => {
+    //     window.addEventListener('beforeunload', () => {
+    //         if(currentMinute >= 20){
+    //             const data = {
+    //                 userId: user.userId,
+    //                 countryId: movieDisplay.countrys[0].countryId,
+    //                 accessTime: currentMinute,
+    //                 nameCountry: ""
+    //             }
     
-                axios.post(import.meta.env.VITE_POST_CREATE_ACCESS_TIME,data)
-                .then(() => console.log('create time success: ',currentMinute))
-                .catch(err => console.log('create time failed: ',err));
-            }
-        });
+    //             axios.post(import.meta.env.VITE_POST_CREATE_ACCESS_TIME,data)
+    //             .then(() => console.log('create time success: ',currentMinute))
+    //             .catch(err => console.log('create time failed: ',err));
+    //         }
+    //     });
       
-        return () => {
-          window.removeEventListener('beforeunload');
-        };
-      }, []);
+    //     return () => {
+    //       window.removeEventListener('beforeunload');
+    //     };
+    //   }, []);
 
     // Get the movie 
     useEffect(()=>{
@@ -91,7 +92,14 @@ function DetailMovie() {
                     data:[user.userId,movieId,newValue]
                 }
                 axios.post(import.meta.env.VITE_POST_RATING_MODEL,dataSender)
-                .then(data => console.log('you are rating the movie: ',data.data))
+                .then(data => {
+                    const newMovieRcm = [...movieCol.movieRcm];
+                    const updatedData = newMovieRcm.filter(movie => movie.movieId !== movieId);
+                    setMovieCol(prevMovieCol => ({
+                        ...prevMovieCol,
+                        movieRcm: updatedData
+                    }));
+                    console.log('you are rating the movie: ',data.data)})
                 .catch(err => console.log('err rating: ',err));
             }
         })
@@ -105,7 +113,6 @@ function DetailMovie() {
         });
         navigate(`/detail-movie/${movieId}`);
     }
-    console.log('movieCol?.movieRcm: ',movieCol?.movieRcm)
     return ( 
         <div className={cx('detail-movie')}>
             <div className={cx('detail-movie-box')}>

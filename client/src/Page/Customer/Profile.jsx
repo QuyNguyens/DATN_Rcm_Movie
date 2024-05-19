@@ -63,6 +63,10 @@ function Profile() {
 
     const handleChange = (event) => {
         setValueGender(event.target.value);
+        setUserProfile(pre => ({
+            ...pre,
+            gender: event.target.value
+        }))
     };
     const handleFileChange = (event) => {
         const file = event.target.files[0];

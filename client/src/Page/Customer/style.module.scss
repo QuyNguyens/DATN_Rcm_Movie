@@ -10,7 +10,7 @@
   .home-adv{
     border-radius: 10px;
     height: 500px;
-    width: 50%;
+    width: 45%;
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
@@ -101,8 +101,10 @@
   }
   .home-movie{
     color: white;
-    padding: 10px;
-    margin: 25px 0;
+    background-color: rgb(133, 224, 234);
+    margin: 15px;
+    border-radius: 15px;
+    padding: 20px;
     h3{
       margin: 15px 0;
     }
@@ -143,6 +145,9 @@
         width: 14.5%;
         display: flex;
         flex-direction: column;
+        background-color: rgb(150, 230, 53);
+        border-radius: 10px;
+        color: black;
         box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
         img{
           width: 100%;
@@ -153,9 +158,14 @@
           }
         }
         span{
-          font-size: 16px;
+          font-size: 17px;
           font-weight: 600;
           margin: 10px 0 0 10px;
+          padding-bottom: 10px;
+          width: 180px; 
+          white-space: nowrap; 
+          overflow: hidden; 
+          text-overflow: ellipsis; 
         }
       }
     }
@@ -261,7 +271,7 @@
       align-items: center;
       justify-content: space-evenly;
       .statistic-left{
-        width: 40%;
+        width: 55%;
         tspan{
           fill: white;
         }

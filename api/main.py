@@ -88,21 +88,25 @@ class CF(object):
         users_rated_i = (self.Y_data[ids, 0]).astype(np.int32)
         # Step 3: find similarity btw the current user and others
         # who already rated i
-        sim = self.S[u, users_rated_i] # matran similarity
-        sim = sim + 0.01
-        # Step 4: find the k most similarity users
-        a = np.argsort(sim)[-self.k:]
-        c = users_rated_i[a]
-        # and the corresponding similarity levels
-        nearest_s = sim[a]
-        #print('users_rated_i[a]',users_rated_i[a])
-        # How did each of 'near' users rated item i
-        r = self.Ybar[i, users_rated_i[a]]
-        if normalized:
-            # add a small number, for instance, 1e-8, to avoid dividing by 0
-            Z = (r*nearest_s)[0]/(np.abs(nearest_s).sum() + 1e-8)
-            return Z,c
-        return Z,c
+       
+        if len(users_rated_i) != 0:
+          sim = self.S[u, users_rated_i] # matran similarity
+          sim = sim + 0.01
+          # Step 4: find the k most similarity users
+          a = np.argsort(sim)[-self.k:]
+          c = users_rated_i[a]
+          # and the corresponding similarity levels
+          nearest_s = sim[a]
+          #print('users_rated_i[a]',users_rated_i[a])
+          # How did each of 'near' users rated item i
+          r = self.Ybar[i, users_rated_i[a]]
+          if normalized:
+              # add a small number, for instance, 1e-8, to avoid dividing by 0
+              Z = (r*nearest_s)[0]/(np.abs(nearest_s).sum() + 1e-8)
+              return Z,c
+          return Z,c
+        else:
+          return 0,0
 
     def pred(self, u, i, normalized = 1):
         """
@@ -139,14 +143,38 @@ class CF(object):
         return arr1,arr2
 
 import joblib
-loaded_model = joblib.load('model.pkl')
+
+conn = pyodbc.connect(driver= '{ODBC Driver 17 for SQL Server}',\
+    host ='LAPTOP-48QSU778\SQLEXPRESS',database ='Movie_DB',\
+    UID='quy123',PWD='123',trusted_connection='yes')
 
 app = Flask(__name__)
 
-CORS(app, supports_credentials=True)
+CORS(app)
+
+@app.route("/train-model")
+def trainmodels():
+    train = []
+    cursor = conn.cursor()
+    cursor.execute("select User_ID,Movie_ID,Rating from tbl_rating")
+    for row in cursor:
+        data = [row[0],row[1],row[2]]
+        train.append(data)
+    train = np.array(train)
+    
+    rs = CF(train, k = 5, uuCF = 1)
+    rs.fit()
+    os.remove("model-rcm.pkl")
+    pickle.dump(rs,open('model-rcm.pkl','wb'))
+    reponse = {
+        "responseCode": 200
+    }
+    print('Da train xong')
+    return jsonify(reponse)
 
 @app.route("/recommend")
 def member():
+    loaded_model = joblib.load('model-rcm.pkl')
     memberId = request.args.get('id')
     id = int(memberId)
     movieListId,userListId = loaded_model.recommend(id)
@@ -154,26 +182,43 @@ def member():
 
 @app.route("/add-rating", methods=["POST"])
 def addRating():
-   if not request.is_json:
-        return jsonify({"error": "Request must be JSON"}), 400
+    loaded_model = joblib.load('model-rcm.pkl')
+    data = request.get_json()
+    rating = data.get('data')
+    if not rating:
+        return jsonify({"error": "json not provided"}), 400
+
+    newData = np.array([rating])
+    loaded_model.add(newData)
+    pickle.dump(loaded_model,open('model-rcm.pkl','wb'))
+    reponse = {
+        "data": data
+    }
+    return jsonify(reponse)  
+
+@app.route("/add-rating-list", methods=["POST"])
+def addRatingList():
+    loaded_model = joblib.load('model-rcm.pkl')
+    data = request.get_json()
+    userId = data.get('userId')
+    list_movieId = data.get('listMovieId')
     
-    try:
-        data = request.get_json().get("data")
-        
-        if not isinstance(data, list) or len(data) != 3:
-            return jsonify({"error": "Invalid data format"}), 400
-        
-        newData = np.array([data])
+    if not userId or not list_movieId:
+        return jsonify({"error": "json not provided"}), 400
+    for movie_id in list_movieId:
+        newData = np.array([[userId,movie_id,5]])
         loaded_model.add(newData)
-        pickle.dump(loaded_model,open('model.pkl','wb'))
-        return 200
-    except Exception as e:
-        # Handle any errors that occur
-        return jsonify({"error": str(e)}), 500   
+    pickle.dump(loaded_model,open('model-rcm.pkl','wb'))
+    reponse = {
+        "data": data
+    }
+    return jsonify(reponse)  
 
 model_path = "model_detect.pt"
-output_video_folder = "D:\MovieVideo"
-output_poster_folder = "D:\MovieVideo"
+
+output_video_folder = r"D:\NodeJS\DATN_Rcm_Movie\client\public"
+output_poster_folder = r"D:\NodeJS\DATN_Rcm_Movie\client\public"
+
 model = YOLO(model_path)
 
 def predict_and_plot(image, model):
